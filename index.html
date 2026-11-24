@@ -1,0 +1,3188 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Confraternização dos Crias 2026 — Convite &amp; Votação</title>
+
+  <!-- Fonte Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+          },
+          colors: {
+            canvas: '#f6f7f9',
+            ink: '#111827',
+            leader: '#1d4ed8',
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- Estilos específicos para o controle deslizante (range slider) e destaque visual -->
+  <style>
+    input[type="range"].budget-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 10px;
+      border-radius: 9999px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    input[type="range"].budget-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 28px;
+      height: 28px;
+      border-radius: 9999px;
+      background: #111827;
+      border: 3px solid #ffffff;
+      box-shadow: 0 2px 10px rgba(17, 24, 39, 0.28);
+      cursor: grab;
+      transition: transform 0.14s ease, background-color 0.14s ease;
+    }
+
+    input[type="range"].budget-slider::-webkit-slider-thumb:active {
+      cursor: grabbing;
+      transform: scale(1.1);
+      background: #1d4ed8;
+    }
+
+    input[type="range"].budget-slider::-moz-range-thumb {
+      width: 28px;
+      height: 28px;
+      border-radius: 9999px;
+      background: #111827;
+      border: 3px solid #ffffff;
+      box-shadow: 0 2px 10px rgba(17, 24, 39, 0.28);
+      cursor: grab;
+      transition: transform 0.14s ease, background-color 0.14s ease;
+    }
+
+    input[type="range"].budget-slider::-moz-range-thumb:active {
+      cursor: grabbing;
+      transform: scale(1.1);
+      background: #1d4ed8;
+    }
+
+    @keyframes shoeAttention {
+      0%, 100% {
+        box-shadow: 0 0 0 0 rgba(29, 78, 216, 0);
+        border-color: #1d4ed8;
+      }
+      50% {
+        box-shadow: 0 0 0 4px rgba(29, 78, 216, 0.22);
+        border-color: #1d4ed8;
+      }
+    }
+
+    .shoe-attention-pulse {
+      animation: shoeAttention 0.75s ease-in-out 2;
+      border-color: #1d4ed8 !important;
+    }
+  </style>
+</head>
+<body class="bg-[#f6f7f9] text-[#111827] font-sans antialiased min-h-screen selection:bg-[#111827] selection:text-white">
+  <div class="max-w-2xl mx-auto px-4 pt-5 pb-16">
+
+    <!-- Cabeçalho fixo -->
+    <header class="flex items-center justify-between gap-3 mb-3">
+      <div class="flex items-center gap-3 min-w-0">
+        <span class="inline-flex items-center justify-center bg-[#111827] text-white text-xs font-bold tracking-wider px-2.5 py-1.5 rounded-lg shrink-0">
+          2026
+        </span>
+        <div class="min-w-0">
+          <h1 class="text-base sm:text-xl font-bold tracking-tight text-[#111827] leading-tight truncate">
+            Confraternização dos Crias
+          </h1>
+          <p class="text-xs sm:text-sm text-gray-500 truncate">
+            Convite oficial &amp; definição do rolê
+          </p>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        id="btnToggleResults"
+        class="shrink-0 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold border border-gray-300 bg-white text-[#111827] hover:border-[#111827] hover:bg-gray-50 active:scale-[0.98] transition"
+      >
+        Ver Resultados
+      </button>
+    </header>
+
+    <!-- Barra discreta com prazo de votação e contagem regressiva ao vivo -->
+    <div
+      id="deadlinePill"
+      class="mb-4 px-3.5 py-2.5 rounded-xl bg-white border border-gray-200 flex flex-wrap items-center justify-between gap-2 text-xs sm:text-sm shadow-[0_1px_4px_rgba(17,24,39,0.03)]"
+    >
+      <div class="flex items-center gap-2 font-medium text-[#111827]">
+        <span id="deadlineDot" class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+        <span id="deadlineLabel">Votação aberta até 06/12 às 23:59</span>
+      </div>
+      <span id="deadlineCountdown" class="font-semibold text-[#1d4ed8] tabular-nums">
+        Calculando prazo...
+      </span>
+    </div>
+
+    <!-- Barra de progresso (visível apenas nos passos 1 a 6) -->
+    <div id="progressContainer" class="mb-4">
+      <div class="flex items-center justify-between text-xs font-semibold text-gray-500 mb-1.5">
+        <span id="progressLabel">Passo 1 de 6</span>
+        <span id="progressStepName" class="text-[#111827]">Cadastro</span>
+      </div>
+      <div class="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
+        <div
+          id="progressFill"
+          class="h-full bg-[#111827] rounded-full transition-all duration-300 ease-out"
+          style="width: 16.66%;"
+        ></div>
+      </div>
+    </div>
+
+    <!-- Banner dinâmico -->
+    <div
+      id="statusBanner"
+      class="hidden mb-4 px-4 py-3 rounded-xl text-sm border transition-all"
+      role="status"
+      aria-live="polite"
+    ></div>
+
+    <!-- Cartão principal -->
+    <main class="bg-white border border-gray-200 rounded-2xl p-5 sm:p-7 shadow-[0_4px_24px_rgba(17,24,39,0.05)]">
+
+      <!-- ================================================================
+           TELA 1: CADASTRO (MENU INICIAL)
+      ================================================================= -->
+      <section class="step-screen transition-opacity duration-200" data-step="1">
+        <div class="mb-6">
+          <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-[#111827] mb-1.5">
+            Confraternização dos Crias
+          </h2>
+          <p class="text-sm sm:text-[15px] text-gray-500 leading-relaxed">
+            Preencha seus dados abaixo para votar. Usamos seu WhatsApp apenas para evitar votos
+            duplicados e permitir que você edite suas escolhas até o dia 06/12 às 23:59.
+          </p>
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <label for="inputNome" class="block text-sm font-semibold text-[#111827] mb-1.5">
+              Nome completo
+            </label>
+            <input
+              type="text"
+              id="inputNome"
+              placeholder="Ex.: Bruno Candido"
+              autocomplete="name"
+              required
+              class="w-full px-3.5 py-3 text-base rounded-xl border border-gray-300 bg-white text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#111827] focus:ring-2 focus:ring-[#111827]/10 transition"
+            />
+          </div>
+
+          <div>
+            <label for="inputWhatsapp" class="block text-sm font-semibold text-[#111827] mb-1.5">
+              WhatsApp
+            </label>
+            <input
+              type="tel"
+              id="inputWhatsapp"
+              placeholder="(31) 99999-9999"
+              inputmode="numeric"
+              autocomplete="tel"
+              maxlength="15"
+              required
+              class="w-full px-3.5 py-3 text-base rounded-xl border border-gray-300 bg-white text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#111827] focus:ring-2 focus:ring-[#111827]/10 transition"
+            />
+            <p class="mt-1.5 text-xs text-gray-500">
+              Seu número não aparece no placar público — apenas o seu nome.
+            </p>
+          </div>
+        </div>
+
+        <p id="errorStep1" class="hidden mt-4 text-sm font-semibold text-red-600"></p>
+
+        <div class="mt-6 pt-4 border-t border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <button
+            type="button"
+            id="btnStep1OpenCalendar"
+            class="w-full sm:w-auto px-4 py-3 rounded-xl border border-gray-300 bg-white text-[#111827] text-sm font-semibold hover:border-[#111827] hover:bg-gray-50 transition"
+          >
+            Ver Calendário da Galera
+          </button>
+          <button
+            type="button"
+            id="btnStep1Next"
+            class="w-full sm:w-auto px-6 py-3 rounded-xl bg-[#111827] text-white text-sm font-semibold hover:bg-gray-800 active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed transition"
+          >
+            Continuar
+          </button>
+        </div>
+      </section>
+
+      <!-- ================================================================
+           TELA 2: DATAS DISPONÍVEIS E HORÁRIOS
+      ================================================================= -->
+      <section class="step-screen hidden transition-opacity duration-200" data-step="2">
+        <div class="mb-4">
+          <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-[#111827]">
+            Datas disponíveis e horários
+          </h2>
+        </div>
+
+        <div class="mb-5 p-4 rounded-xl bg-amber-50 border border-amber-300 text-amber-950 text-sm leading-relaxed">
+          <strong class="font-bold">Atenção:</strong> Marque <strong class="font-bold">TODOS os dias</strong> e
+          <strong class="font-bold">TODOS os horários</strong> em que você consegue ir. Quanto mais opções você
+          marcar, maior a chance de encontrarmos um dia em que todo mundo possa!
+        </div>
+
+        <!-- Calendário mensal -->
+        <div class="border border-gray-200 rounded-xl p-3.5 sm:p-4 bg-white mb-4">
+          <div class="flex items-center justify-between mb-3">
+            <button
+              type="button"
+              id="btnPrevMonth"
+              aria-label="Mês anterior"
+              class="w-10 h-10 rounded-xl border border-gray-200 bg-white text-[#111827] text-xl font-medium flex items-center justify-center hover:border-[#111827] disabled:opacity-30 disabled:cursor-not-allowed transition"
+            >
+              &lsaquo;
+            </button>
+            <h3 id="calendarMonthLabel" class="text-base font-bold text-[#111827] capitalize">
+              Dezembro 2026
+            </h3>
+            <button
+              type="button"
+              id="btnNextMonth"
+              aria-label="Próximo mês"
+              class="w-10 h-10 rounded-xl border border-gray-200 bg-white text-[#111827] text-xl font-medium flex items-center justify-center hover:border-[#111827] disabled:opacity-30 disabled:cursor-not-allowed transition"
+            >
+              &rsaquo;
+            </button>
+          </div>
+
+          <div class="grid grid-cols-7 text-center text-xs font-semibold text-gray-500 mb-2">
+            <span>Dom</span>
+            <span>Seg</span>
+            <span>Ter</span>
+            <span>Qua</span>
+            <span>Qui</span>
+            <span>Sex</span>
+            <span>Sáb</span>
+          </div>
+
+          <div id="calendarGrid" class="grid grid-cols-7 gap-1.5"></div>
+        </div>
+
+        <!-- Painel de horários do dia selecionado -->
+        <div id="timeSlotPanel" class="hidden mb-4 p-4 rounded-xl border-2 border-[#111827] bg-gray-50 scroll-mt-4">
+          <div class="flex flex-wrap items-center justify-between gap-2.5 mb-2.5">
+            <div>
+              <span class="block text-[11px] font-bold uppercase tracking-wider text-gray-500">
+                Horários para o dia
+              </span>
+              <h3 id="activeDateTitle" class="text-base font-bold text-[#111827] capitalize mt-0.5">
+                —
+              </h3>
+            </div>
+            <button
+              type="button"
+              id="btnAllDay"
+              class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold border border-gray-300 bg-white text-[#111827] hover:border-[#111827] transition"
+            >
+              Posso o dia todo
+            </button>
+          </div>
+          <p class="text-xs sm:text-sm text-gray-500 mb-3">
+            Toque nos horários em que você pode estar presente:
+          </p>
+          <div id="timeSlotsGrid" class="grid grid-cols-3 sm:grid-cols-5 gap-2"></div>
+        </div>
+
+        <div
+          id="timeSlotPlaceholder"
+          class="mb-4 p-4 rounded-xl border border-dashed border-gray-300 text-center text-sm text-gray-500"
+        >
+          Toque em um dia no calendário acima para escolher os horários disponíveis.
+        </div>
+
+        <!-- Resumo compacto das datas marcadas -->
+        <div class="border border-gray-200 rounded-xl p-4 bg-white">
+          <div class="flex items-center justify-between mb-2.5">
+            <h4 class="text-sm font-bold text-[#111827]">Dias que você já marcou</h4>
+            <span
+              id="selectedDatesCount"
+              class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-gray-100 text-[#111827] border border-gray-200"
+            >
+              0 dias
+            </span>
+          </div>
+          <div id="selectedDatesList" class="space-y-2">
+            <p class="text-sm text-gray-500">Nenhum dia marcado ainda.</p>
+          </div>
+        </div>
+
+        <p id="errorStep2" class="hidden mt-4 text-sm font-semibold text-red-600"></p>
+
+        <div class="mt-6 pt-4 border-t border-gray-200 flex flex-col-reverse sm:flex-row sm:justify-between gap-3">
+          <button
+            type="button"
+            data-prev="1"
+            class="w-full sm:w-auto px-5 py-3 rounded-xl bg-gray-100 border border-gray-200 text-[#111827] text-sm font-semibold hover:bg-gray-200 transition"
+          >
+            Voltar
+          </button>
+          <button
+            type="button"
+            data-next="3"
+            class="w-full sm:w-auto px-6 py-3 rounded-xl bg-[#111827] text-white text-sm font-semibold hover:bg-gray-800 transition"
+          >
+            Continuar
+          </button>
+        </div>
+      </section>
+
+      <!-- ================================================================
+           TELA 3: PREMIAÇÃO + TAMANHO DO CHINELO (35/36 A 45/46)
+      ================================================================= -->
+      <section class="step-screen hidden transition-opacity duration-200" data-step="3">
+        <div class="mb-5">
+          <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-[#111827] mb-1.5">
+            Premiação
+          </h2>
+          <p class="text-sm sm:text-[15px] text-gray-500">
+            Quais prêmios você gostaria que tivessem na confraternização? (Pode marcar mais de um)
+          </p>
+        </div>
+
+        <div id="prizesGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5"></div>
+
+        <div id="prizeOtherWrapper" class="hidden mt-3 p-4 rounded-xl bg-gray-50 border border-gray-200">
+          <label for="inputPrizeOther" class="block text-sm font-semibold text-[#111827] mb-1.5">
+            Qual prêmio você sugere?
+          </label>
+          <input
+            type="text"
+            id="inputPrizeOther"
+            placeholder="Digite sua sugestão de prêmio..."
+            maxlength="80"
+            class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-300 bg-white text-[#111827] focus:outline-none focus:border-[#111827] focus:ring-2 focus:ring-[#111827]/10"
+          />
+        </div>
+
+        <!-- Subseção obrigatória: Tamanho do Chinelo (35/36 a 45/46) -->
+        <div
+          id="shoeSizeSection"
+          class="mt-6 p-4 sm:p-5 rounded-xl bg-gray-50 border border-gray-200 transition-all scroll-mt-4"
+        >
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
+            <h3 class="text-sm sm:text-base font-bold text-[#111827]">
+              Número do seu chinelo
+            </h3>
+            <span
+              id="shoeSizeSelectedBadge"
+              class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-white border border-gray-200 text-gray-500"
+            >
+              Obrigatório
+            </span>
+          </div>
+          <p class="text-xs sm:text-sm text-gray-500 mb-3.5 leading-relaxed">
+            Obrigatório independente do prêmio escolhido — assim já temos o tamanho de todo mundo caso o chinelo ganhe!
+          </p>
+          <div id="shoeSizeGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5"></div>
+        </div>
+
+        <p id="errorStep3" class="hidden mt-4 text-sm font-semibold text-red-600"></p>
+
+        <div class="mt-6 pt-4 border-t border-gray-200 flex flex-col-reverse sm:flex-row sm:justify-between gap-3">
+          <button
+            type="button"
+            data-prev="2"
+            class="w-full sm:w-auto px-5 py-3 rounded-xl bg-gray-100 border border-gray-200 text-[#111827] text-sm font-semibold hover:bg-gray-200 transition"
+          >
+            Voltar
+          </button>
+          <button
+            type="button"
+            data-next="4"
+            class="w-full sm:w-auto px-6 py-3 rounded-xl bg-[#111827] text-white text-sm font-semibold hover:bg-gray-800 transition"
+          >
+            Continuar
+          </button>
+        </div>
+      </section>
+
+      <!-- ================================================================
+           TELA 4: CARDÁPIO
+      ================================================================= -->
+      <section class="step-screen hidden transition-opacity duration-200" data-step="4">
+        <div class="mb-5">
+          <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-[#111827] mb-1.5">
+            Cardápio
+          </h2>
+          <p class="text-sm sm:text-[15px] text-gray-500">
+            Escolha suas preferências de comida e bebida para montarmos a lista certa.
+          </p>
+        </div>
+
+        <div class="mb-6">
+          <h3 class="text-sm sm:text-base font-bold text-[#111827] mb-2.5">
+            O que você prefere comer?
+            <span class="font-normal text-xs sm:text-sm text-gray-500">(pode marcar mais de um)</span>
+          </h3>
+          <div id="foodGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5"></div>
+
+          <div id="foodOtherWrapper" class="hidden mt-3 p-4 rounded-xl bg-gray-50 border border-gray-200">
+            <label for="inputFoodOther" class="block text-sm font-semibold text-[#111827] mb-1.5">
+              Outra opção de comida
+            </label>
+            <input
+              type="text"
+              id="inputFoodOther"
+              placeholder="Digite sua sugestão de comida..."
+              maxlength="80"
+              class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-300 bg-white text-[#111827] focus:outline-none focus:border-[#111827] focus:ring-2 focus:ring-[#111827]/10"
+            />
+          </div>
+        </div>
+
+        <div>
+          <h3 class="text-sm sm:text-base font-bold text-[#111827] mb-2.5">
+            O que você costuma beber?
+            <span class="font-normal text-xs sm:text-sm text-gray-500">(ajuda no cálculo do rateio)</span>
+          </h3>
+          <div id="drinksGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5"></div>
+        </div>
+
+        <p id="errorStep4" class="hidden mt-4 text-sm font-semibold text-red-600"></p>
+
+        <div class="mt-6 pt-4 border-t border-gray-200 flex flex-col-reverse sm:flex-row sm:justify-between gap-3">
+          <button
+            type="button"
+            data-prev="3"
+            class="w-full sm:w-auto px-5 py-3 rounded-xl bg-gray-100 border border-gray-200 text-[#111827] text-sm font-semibold hover:bg-gray-200 transition"
+          >
+            Voltar
+          </button>
+          <button
+            type="button"
+            data-next="5"
+            class="w-full sm:w-auto px-6 py-3 rounded-xl bg-[#111827] text-white text-sm font-semibold hover:bg-gray-800 transition"
+          >
+            Continuar
+          </button>
+        </div>
+      </section>
+
+      <!-- ================================================================
+           TELA 5: LOCAL (MÚLTIPLA ESCOLHA + OUTRO)
+      ================================================================= -->
+      <section class="step-screen hidden transition-opacity duration-200" data-step="5">
+        <div class="mb-5">
+          <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-[#111827] mb-1.5">
+            Local
+          </h2>
+          <p class="text-sm sm:text-[15px] text-gray-500">
+            Onde devemos fazer a confraternização? (Pode marcar mais de um)
+          </p>
+        </div>
+
+        <div id="locationGrid" class="grid grid-cols-1 gap-2.5"></div>
+
+        <div id="locationOtherWrapper" class="hidden mt-3 p-4 rounded-xl bg-gray-50 border border-gray-200">
+          <label for="inputLocationOther" class="block text-sm font-semibold text-[#111827] mb-1.5">
+            Sugestão de local
+          </label>
+          <input
+            type="text"
+            id="inputLocationOther"
+            placeholder="Qual outro local você sugere?"
+            maxlength="80"
+            class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-300 bg-white text-[#111827] focus:outline-none focus:border-[#111827] focus:ring-2 focus:ring-[#111827]/10"
+          />
+        </div>
+
+        <p id="errorStep5" class="hidden mt-4 text-sm font-semibold text-red-600"></p>
+
+        <div class="mt-6 pt-4 border-t border-gray-200 flex flex-col-reverse sm:flex-row sm:justify-between gap-3">
+          <button
+            type="button"
+            data-prev="4"
+            class="w-full sm:w-auto px-5 py-3 rounded-xl bg-gray-100 border border-gray-200 text-[#111827] text-sm font-semibold hover:bg-gray-200 transition"
+          >
+            Voltar
+          </button>
+          <button
+            type="button"
+            data-next="6"
+            class="w-full sm:w-auto px-6 py-3 rounded-xl bg-[#111827] text-white text-sm font-semibold hover:bg-gray-800 transition"
+          >
+            Continuar
+          </button>
+        </div>
+      </section>
+
+      <!-- ================================================================
+           TELA 6: ORÇAMENTO (SLIDER R$ 50 A R$ 150)
+      ================================================================= -->
+      <section class="step-screen hidden transition-opacity duration-200" data-step="6">
+        <div class="mb-5">
+          <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-[#111827] mb-1.5">
+            Orçamento para a confraternização
+          </h2>
+          <p class="text-sm sm:text-[15px] text-gray-500">
+            Arraste o controle abaixo para escolher quanto você topa gastar por pessoa:
+          </p>
+        </div>
+
+        <div class="p-5 sm:p-6 rounded-2xl border border-gray-200 bg-gray-50/70">
+          <div class="text-center mb-5">
+            <div
+              id="budgetValueDisplay"
+              class="text-4xl sm:text-5xl font-extrabold tracking-tight text-[#111827] tabular-nums"
+            >
+              R$ 100
+            </div>
+            <p class="text-xs sm:text-sm font-medium text-gray-500 mt-1">
+              por pessoa
+            </p>
+          </div>
+
+          <div class="px-1">
+            <input
+              type="range"
+              id="budgetSlider"
+              min="50"
+              max="150"
+              step="5"
+              value="100"
+              aria-label="Orçamento por pessoa em reais"
+              class="budget-slider"
+            />
+          </div>
+
+          <div id="budgetTicks" class="grid grid-cols-5 gap-1 mt-4">
+            <button type="button" data-budget-tick="50" class="budget-tick-btn py-1.5 rounded-lg text-xs font-semibold transition">R$ 50</button>
+            <button type="button" data-budget-tick="75" class="budget-tick-btn py-1.5 rounded-lg text-xs font-semibold transition">R$ 75</button>
+            <button type="button" data-budget-tick="100" class="budget-tick-btn py-1.5 rounded-lg text-xs font-semibold transition">R$ 100</button>
+            <button type="button" data-budget-tick="125" class="budget-tick-btn py-1.5 rounded-lg text-xs font-semibold transition">R$ 125</button>
+            <button type="button" data-budget-tick="150" class="budget-tick-btn py-1.5 rounded-lg text-xs font-semibold transition">R$ 150</button>
+          </div>
+        </div>
+
+        <div class="mt-6 p-4 rounded-xl bg-gray-50 border border-gray-200">
+          <h4 class="text-sm font-bold text-[#111827] mb-3">Resumo do seu voto</h4>
+          <dl id="reviewSummary" class="space-y-2 text-sm"></dl>
+        </div>
+
+        <p id="errorStep6" class="hidden mt-4 text-sm font-semibold text-red-600"></p>
+
+        <div class="mt-6 pt-4 border-t border-gray-200 flex flex-col-reverse sm:flex-row sm:justify-between gap-3">
+          <button
+            type="button"
+            data-prev="5"
+            class="w-full sm:w-auto px-5 py-3 rounded-xl bg-gray-100 border border-gray-200 text-[#111827] text-sm font-semibold hover:bg-gray-200 transition"
+          >
+            Voltar
+          </button>
+          <button
+            type="button"
+            id="btnSubmitVote"
+            class="w-full sm:w-auto px-6 py-3 rounded-xl bg-[#111827] text-white text-sm font-semibold hover:bg-gray-800 disabled:opacity-60 disabled:cursor-not-allowed transition"
+          >
+            Confirmar e Enviar Voto
+          </button>
+        </div>
+      </section>
+
+      <!-- ================================================================
+           TELA 7: PLACAR AO VIVO (RESULTADOS)
+      ================================================================= -->
+      <section class="step-screen hidden transition-opacity duration-200" data-step="7">
+        <div class="flex flex-wrap items-start justify-between gap-3 mb-5">
+          <div>
+            <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-[#111827]">
+              Placar ao Vivo
+            </h2>
+            <p id="resultsSubtitle" class="text-sm text-gray-500 mt-0.5">
+              Carregando resultados...
+            </p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              id="btnRefreshResults"
+              class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold border border-gray-300 bg-white text-[#111827] hover:border-[#111827] transition"
+            >
+              Atualizar
+            </button>
+            <button
+              type="button"
+              id="btnOpenGroupCalendar"
+              class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold border border-[#1d4ed8] bg-blue-50 text-[#1d4ed8] hover:bg-blue-100 transition"
+            >
+              Calendário da Galera
+            </button>
+            <button
+              type="button"
+              id="btnEditMyVote"
+              class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-[#111827] text-white hover:bg-gray-800 transition"
+            >
+              Editar meu voto
+            </button>
+          </div>
+        </div>
+
+        <div id="resultsLoader" class="hidden py-10 text-center text-gray-500 text-sm">
+          <div class="w-7 h-7 border-[3px] border-gray-200 border-t-[#111827] rounded-full animate-spin mx-auto mb-3"></div>
+          <p>Buscando votos atualizados...</p>
+        </div>
+
+        <div id="resultsContent" class="hidden space-y-6">
+          <!-- Cartão de destaque: Melhor Data e Horário -->
+          <div id="topDateHero" class="bg-[#111827] text-white p-5 rounded-2xl"></div>
+
+          <!-- Atalho de destaque para o Calendário Interativo de Todos os Dias -->
+          <div class="p-4 rounded-xl bg-blue-50/70 border border-blue-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div>
+              <h3 class="text-sm font-bold text-[#111827]">
+                Quer conferir qualquer dia e horário no calendário?
+              </h3>
+              <p class="text-xs sm:text-sm text-gray-600">
+                Toque em qualquer data para ver exatamente quem marcou cada horário.
+              </p>
+            </div>
+            <button
+              type="button"
+              id="btnOpenGroupCalendarInline"
+              class="shrink-0 px-4 py-2.5 rounded-xl bg-[#1d4ed8] text-white text-xs sm:text-sm font-semibold hover:bg-blue-800 transition"
+            >
+              Abrir Calendário Detalhado
+            </button>
+          </div>
+
+          <div class="border-t border-gray-200 pt-5">
+            <h3 class="text-sm sm:text-base font-bold text-[#111827] mb-1">
+              Top 5 — Melhores Datas e Horários
+            </h3>
+            <p class="text-xs sm:text-sm text-gray-500 mb-3.5">
+              Detalhamento de quem pode e quem não pode em cada uma das 5 melhores combinações.
+            </p>
+            <div id="resultTopDates" class="space-y-3.5"></div>
+          </div>
+
+          <div class="border-t border-gray-200 pt-5">
+            <h3 class="text-sm sm:text-base font-bold text-[#111827] mb-1">
+              Como cada um marcou
+            </h3>
+            <p class="text-xs sm:text-sm text-gray-500 mb-3.5">
+              Disponibilidade individual completa de todos os participantes.
+            </p>
+            <div id="resultIndividualDates" class="space-y-2.5"></div>
+          </div>
+
+          <div class="border-t border-gray-200 pt-5">
+            <h3 class="text-sm sm:text-base font-bold text-[#111827] mb-3">
+              Ranking de Prêmios
+            </h3>
+            <div id="resultPrizes" class="space-y-3"></div>
+          </div>
+
+          <!-- Numeração dos Chinelos (Pronto para copiar) -->
+          <div class="border-t border-gray-200 pt-5">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+              <div>
+                <h3 class="text-sm sm:text-base font-bold text-[#111827]">
+                  Numeração dos Chinelos
+                </h3>
+                <p class="text-xs text-gray-500">
+                  Lista formatada pronta para enviar na loja ou no grupo.
+                </p>
+              </div>
+              <button
+                type="button"
+                id="btnCopyShoes"
+                class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-[#111827] text-white hover:bg-gray-800 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed transition"
+              >
+                Copiar lista
+              </button>
+            </div>
+            <pre
+              id="shoeListPre"
+              class="p-4 rounded-xl bg-gray-50 border border-gray-200 text-sm font-mono text-[#111827] whitespace-pre-wrap leading-relaxed select-all overflow-x-auto"
+            ></pre>
+            <div
+              id="shoeSizeSummary"
+              class="mt-2.5 px-3.5 py-2.5 rounded-xl bg-white border border-gray-200 text-xs sm:text-sm text-gray-600"
+            ></div>
+          </div>
+
+          <div class="border-t border-gray-200 pt-5">
+            <h3 class="text-sm sm:text-base font-bold text-[#111827] mb-3">
+              Cardápio — Comidas
+            </h3>
+            <div id="resultFood" class="space-y-3"></div>
+          </div>
+
+          <div class="border-t border-gray-200 pt-5">
+            <h3 class="text-sm sm:text-base font-bold text-[#111827] mb-3">
+              Cardápio — Bebidas
+            </h3>
+            <div id="resultDrinks" class="space-y-3"></div>
+          </div>
+
+          <div class="border-t border-gray-200 pt-5">
+            <h3 class="text-sm sm:text-base font-bold text-[#111827] mb-3">
+              Locais mais votados
+            </h3>
+            <div id="resultLocation" class="space-y-3"></div>
+          </div>
+
+          <div class="border-t border-gray-200 pt-5">
+            <h3 class="text-sm sm:text-base font-bold text-[#111827] mb-3">
+              Orçamento para a confraternização
+            </h3>
+            <div id="budgetStatsCards" class="grid grid-cols-3 gap-2.5 mb-4"></div>
+            <div id="resultBudgetRanges" class="space-y-3"></div>
+          </div>
+
+          <div class="border-t border-gray-200 pt-5">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-sm sm:text-base font-bold text-[#111827]">
+                Quem já respondeu
+              </h3>
+              <span
+                id="participantsCounter"
+                class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-gray-100 text-[#111827] border border-gray-200"
+              >
+                0 participantes
+              </span>
+            </div>
+            <div id="participantsList" class="flex flex-wrap gap-2"></div>
+          </div>
+
+          <!-- Botão inferior para voltar ao Menu Inicial -->
+          <div id="resultsFooterNav" class="border-t border-gray-200 pt-5 flex justify-start">
+            <button
+              type="button"
+              id="btnResultsBackHome"
+              class="px-5 py-2.5 rounded-xl bg-gray-100 border border-gray-200 text-[#111827] text-sm font-semibold hover:bg-gray-200 transition"
+            >
+              Voltar ao Menu Inicial
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================
+           TELA 8: CALENDÁRIO DETALHADO DA GALERA
+      ================================================================= -->
+      <section class="step-screen hidden transition-opacity duration-200" data-step="8">
+        <div class="flex flex-wrap items-start justify-between gap-3 mb-5">
+          <div>
+            <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-[#111827]">
+              Calendário da Galera
+            </h2>
+            <p id="groupCalSubtitle" class="text-sm text-gray-500 mt-0.5">
+              Toque em qualquer dia para ver quem marcou cada horário.
+            </p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              id="btnGroupCalBackResults"
+              class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold border border-gray-300 bg-white text-[#111827] hover:border-[#111827] transition"
+            >
+              Voltar ao Placar
+            </button>
+            <button
+              type="button"
+              id="btnGroupCalBackHome"
+              class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-[#111827] text-white hover:bg-gray-800 transition"
+            >
+              Menu Inicial
+            </button>
+          </div>
+        </div>
+
+        <div id="groupCalLoader" class="hidden py-10 text-center text-gray-500 text-sm">
+          <div class="w-7 h-7 border-[3px] border-gray-200 border-t-[#111827] rounded-full animate-spin mx-auto mb-3"></div>
+          <p>Carregando calendário dos participantes...</p>
+        </div>
+
+        <div id="groupCalContent" class="hidden space-y-5">
+          <!-- Calendário Mensal com contagem por dia -->
+          <div class="border border-gray-200 rounded-xl p-3.5 sm:p-4 bg-white">
+            <div class="flex items-center justify-between mb-3">
+              <button
+                type="button"
+                id="btnGroupPrevMonth"
+                aria-label="Mês anterior"
+                class="w-10 h-10 rounded-xl border border-gray-200 bg-white text-[#111827] text-xl font-medium flex items-center justify-center hover:border-[#111827] disabled:opacity-30 disabled:cursor-not-allowed transition"
+              >
+                &lsaquo;
+              </button>
+              <h3 id="groupCalMonthLabel" class="text-base font-bold text-[#111827] capitalize">
+                Dezembro 2026
+              </h3>
+              <button
+                type="button"
+                id="btnGroupNextMonth"
+                aria-label="Próximo mês"
+                class="w-10 h-10 rounded-xl border border-gray-200 bg-white text-[#111827] text-xl font-medium flex items-center justify-center hover:border-[#111827] disabled:opacity-30 disabled:cursor-not-allowed transition"
+              >
+                &rsaquo;
+              </button>
+            </div>
+
+            <div class="grid grid-cols-7 text-center text-xs font-semibold text-gray-500 mb-2">
+              <span>Dom</span>
+              <span>Seg</span>
+              <span>Ter</span>
+              <span>Qua</span>
+              <span>Qui</span>
+              <span>Sex</span>
+              <span>Sáb</span>
+            </div>
+
+            <div id="groupCalGrid" class="grid grid-cols-7 gap-1.5"></div>
+
+            <div class="mt-3 pt-3 border-t border-gray-100 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-gray-500">
+              <span class="inline-flex items-center gap-1.5">
+                <span class="w-3 h-3 rounded-sm bg-emerald-100 border border-emerald-500"></span>
+                Dia com maioria disponível
+              </span>
+              <span class="inline-flex items-center gap-1.5">
+                <span class="w-3 h-3 rounded-sm bg-amber-50 border border-amber-300"></span>
+                Dia com alguns votos
+              </span>
+              <span class="text-gray-400">
+                (O selo mostra o pico de pessoas juntas no dia)
+              </span>
+            </div>
+          </div>
+
+          <!-- Detalhamento horário a horário do dia clicado -->
+          <div id="groupCalDayDetail" class="scroll-mt-4"></div>
+
+          <!-- Lista completa de como cada um marcou (acesso rápido também aqui) -->
+          <div class="border-t border-gray-200 pt-5">
+            <h3 class="text-sm sm:text-base font-bold text-[#111827] mb-1">
+              Resumo por participante
+            </h3>
+            <p class="text-xs sm:text-sm text-gray-500 mb-3">
+              Todas as datas e horários marcados por cada pessoa.
+            </p>
+            <div id="groupCalParticipantsSummary" class="space-y-2.5"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    /* ==========================================================================
+       ÁREA FÁCIL DE EDITAR
+       Altere aqui a URL do Google Apps Script, o prazo limite ou qualquer opção.
+       ========================================================================== */
+    const API_URL = "https://script.google.com/macros/s/AKfycbzR9Elp9E__wf_RtFhKPwGVWYYxmTTrUbduw0wxdh4DdYAzGsFl6HfWHtMXrBkWG5w6gQ/exec";
+    const USE_MOCK_DATA = false; // Troque para false depois de conectar sua planilha do Google
+
+    // Prazo limite de votação: 06/12/2026 às 23:59:59 (horário de Brasília -03:00)
+    const DEADLINE_ISO = "2026-12-06T23:59:59-03:00";
+
+    // Parâmetros do slider de orçamento (em R$)
+    const BUDGET_MIN = 50;
+    const BUDGET_MAX = 150;
+    const BUDGET_STEP = 5;
+    const BUDGET_DEFAULT = 100;
+
+    // Tamanhos de chinelo (pares)
+    const SHOE_SIZES = ["35/36", "37/38", "39/40", "41/42", "43/44", "45/46"];
+
+    // Horários disponíveis por dia
+    const TIME_SLOTS = ["12:00", "14:00", "16:00", "18:00", "20:00"];
+
+    // Opções das telas de votação (mantenha "Outro" por último para o campo de texto livre)
+    const PRIZE_OPTIONS = [
+      "Chinelo",
+      "Camisa de time de futebol Europeu",
+      "Camisa de equipe de Fórmula 1",
+      "Camisa de time de futebol Brasileirão",
+      "Presente até R$ 100",
+      "Outro",
+    ];
+
+    const FOOD_OPTIONS = [
+      "Churrasco",
+      "Pizza",
+      "Porções / Boteco",
+      "Hambúrguer / Lanches",
+      "Outro",
+    ];
+
+    const DRINK_OPTIONS = [
+      "Cerveja",
+      "Destilados / Drinks",
+      "Refrigerante / Suco / Água",
+    ];
+
+    const LOCATION_OPTIONS = [
+      "Casa do Gustavo Milton",
+      "Casa do Bruno",
+      "Casa dos gêmeos",
+      "Outro",
+    ];
+
+    /* ==========================================================================
+       CONFIGURAÇÕES INTERNAS E ESTADO DA APLICAÇÃO
+       ========================================================================== */
+    const STEP_NAMES = {
+      1: "Cadastro",
+      2: "Datas e Horários",
+      3: "Premiação",
+      4: "Cardápio",
+      5: "Local",
+      6: "Orçamento",
+    };
+
+    // Meses navegáveis no calendário (0-indexed: 10 = Novembro, 11 = Dezembro)
+    const ALLOWED_MONTHS = [
+      { year: 2026, month: 10, label: "Novembro 2026" },
+      { year: 2026, month: 11, label: "Dezembro 2026" },
+    ];
+
+    const STORAGE_KEYS = {
+      USER_ID: "confra_crias_2026_user_id",
+      USER_NAME: "confra_crias_2026_user_name",
+      USER_PHONE: "confra_crias_2026_user_phone",
+      MOCK_DB: "confra_crias_2026_mock_v4",
+    };
+
+    function createEmptyFormState(keepIdentity = {}) {
+      return {
+        idUsuario: keepIdentity.idUsuario || "",
+        nome: keepIdentity.nome || "",
+        whatsapp: keepIdentity.whatsapp || "",
+        datasHorarios: {},
+        premios: [],
+        premioOutro: "",
+        numeroChinelo: "",
+        comidas: [],
+        comidaOutro: "",
+        bebidas: [],
+        locais: [],
+        localOutro: "",
+        orcamento: BUDGET_DEFAULT,
+      };
+    }
+
+    const state = {
+      currentStep: 1,
+      previousStepBeforeResults: 1,
+      calendarMonthIndex: 1, // Padrão: Dezembro 2026 (votação)
+      activeDateISO: null,
+      groupCalMonthIndex: 1, // Padrão: Dezembro 2026 (calendário da galera)
+      groupCalSelectedISO: null,
+      isEditingExisting: false,
+      votingLockedUI: false,
+      lastRenderedVotes: [],
+      form: createEmptyFormState(),
+    };
+
+    // 5 votos iniciais realistas para demonstração no Modo Mock
+    const INITIAL_MOCK_VOTES = [
+      {
+        idUsuario: "31999990001",
+        timestamp: "2026-11-24T09:05:00Z",
+        nome: "Bruno",
+        datasHorarios: {
+          "2026-12-12": ["14:00", "16:00", "18:00", "20:00"],
+          "2026-12-19": ["12:00", "14:00", "16:00", "18:00", "20:00"],
+          "2026-12-20": ["12:00", "14:00", "16:00"],
+        },
+        premios: ["Chinelo", "Camisa de time de futebol Europeu"],
+        numeroChinelo: "41/42",
+        comidas: ["Churrasco", "Porções / Boteco"],
+        bebidas: ["Cerveja", "Refrigerante / Suco / Água"],
+        locais: ["Casa do Bruno", "Casa do Gustavo Milton"],
+        orcamento: 90,
+      },
+      {
+        idUsuario: "31999990002",
+        timestamp: "2026-11-24T09:12:00Z",
+        nome: "Gustavo Milton",
+        datasHorarios: {
+          "2026-12-12": ["14:00", "16:00", "18:00"],
+          "2026-12-19": ["12:00", "14:00", "16:00", "18:00", "20:00"],
+        },
+        premios: ["Camisa de time de futebol Europeu", "Chinelo"],
+        numeroChinelo: "41/42",
+        comidas: ["Churrasco", "Porções / Boteco"],
+        bebidas: ["Cerveja", "Destilados / Drinks"],
+        locais: ["Casa do Gustavo Milton", "Casa do Bruno"],
+        orcamento: 100,
+      },
+      {
+        idUsuario: "31999990003",
+        timestamp: "2026-11-24T09:18:00Z",
+        nome: "Lucas (Gêmeo)",
+        datasHorarios: {
+          "2026-12-19": ["14:00", "16:00", "18:00", "20:00"],
+          "2026-12-20": ["12:00", "14:00", "16:00", "18:00"],
+        },
+        premios: ["Camisa de equipe de Fórmula 1", "Presente até R$ 100"],
+        numeroChinelo: "39/40",
+        comidas: ["Churrasco", "Pizza"],
+        bebidas: ["Cerveja", "Refrigerante / Suco / Água"],
+        locais: ["Casa dos gêmeos", "Casa do Gustavo Milton"],
+        orcamento: 80,
+      },
+      {
+        idUsuario: "31999990004",
+        timestamp: "2026-11-24T09:24:00Z",
+        nome: "Matheus (Gêmeo)",
+        datasHorarios: {
+          "2026-12-12": ["16:00", "18:00", "20:00"],
+          "2026-12-19": ["16:00", "18:00", "20:00"],
+          "2026-12-20": ["14:00", "16:00"],
+        },
+        premios: ["Camisa de time de futebol Brasileirão", "Chinelo"],
+        numeroChinelo: "39/40",
+        comidas: ["Churrasco"],
+        bebidas: ["Refrigerante / Suco / Água"],
+        locais: ["Casa dos gêmeos"],
+        orcamento: 110,
+      },
+      {
+        idUsuario: "31999990005",
+        timestamp: "2026-11-24T09:30:00Z",
+        nome: "Antonio",
+        datasHorarios: {
+          "2026-12-12": ["18:00", "20:00"],
+          "2026-12-19": ["18:00", "20:00"],
+          "2026-12-26": ["14:00", "16:00", "18:00"],
+        },
+        premios: ["Chinelo", "Copo térmico"],
+        numeroChinelo: "41/42",
+        comidas: ["Churrasco", "Hambúrguer / Lanches"],
+        bebidas: ["Cerveja", "Destilados / Drinks"],
+        locais: ["Casa do Bruno", "Casa dos gêmeos"],
+        orcamento: 120,
+      },
+    ];
+
+    /* ==========================================================================
+       CONTROLE DE PRAZO (TRAVA EM 06/12/2026 ÀS 23:59)
+       ========================================================================== */
+    function getDeadlineDate() {
+      return new Date(DEADLINE_ISO);
+    }
+
+    function isVotingClosed() {
+      return new Date() > getDeadlineDate();
+    }
+
+    function updateDeadlineUI() {
+      const closed = isVotingClosed();
+      const dot = document.getElementById("deadlineDot");
+      const label = document.getElementById("deadlineLabel");
+      const countdown = document.getElementById("deadlineCountdown");
+      const pill = document.getElementById("deadlinePill");
+
+      if (closed) {
+        dot.className = "w-2 h-2 rounded-full bg-red-600 shrink-0";
+        label.textContent = "Votação encerrada em 06/12 às 23:59";
+        countdown.textContent = "Encerrada";
+        countdown.className = "font-semibold text-red-600";
+        pill.className =
+          "mb-4 px-3.5 py-2.5 rounded-xl bg-red-50 border border-red-200 flex flex-wrap items-center justify-between gap-2 text-xs sm:text-sm";
+        enforceClosedVotingState();
+        return;
+      }
+
+      const diffMs = Math.max(0, getDeadlineDate().getTime() - Date.now());
+      const totalMinutes = Math.floor(diffMs / 60000);
+      const days = Math.floor(totalMinutes / (60 * 24));
+      const hours = Math.floor((totalMinutes % (60 * 24)) / 60);
+      const minutes = totalMinutes % 60;
+
+      const parts = [];
+      if (days > 0) parts.push(`${days}d`);
+      if (hours > 0 || days > 0) parts.push(`${hours}h`);
+      parts.push(`${minutes}m`);
+
+      dot.className = "w-2 h-2 rounded-full bg-emerald-500 shrink-0";
+      label.textContent = "Votação aberta até 06/12 às 23:59";
+      countdown.textContent = `faltam ${parts.join(" ")}`;
+      countdown.className = "font-semibold text-[#1d4ed8] tabular-nums";
+    }
+
+    function enforceClosedVotingState() {
+      document.getElementById("btnToggleResults").classList.add("hidden");
+      document.getElementById("btnEditMyVote").classList.add("hidden");
+      document.getElementById("resultsFooterNav").classList.add("hidden");
+      document.getElementById("btnGroupCalBackHome").classList.add("hidden");
+      const submitBtn = document.getElementById("btnSubmitVote");
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.classList.add("hidden");
+      }
+
+      showBanner(
+        "Votação encerrada em 06/12 às 23:59. Confira abaixo o resultado final!",
+        "danger"
+      );
+
+      if (!state.votingLockedUI || (state.currentStep !== 7 && state.currentStep !== 8)) {
+        state.votingLockedUI = true;
+        goToStep(7);
+      }
+    }
+
+    /* ==========================================================================
+       FUNÇÕES UTILITÁRIAS
+       ========================================================================== */
+    function stripDigits(str) {
+      return String(str || "").replace(/\D/g, "");
+    }
+
+    function formatPhoneMask(value) {
+      const digits = stripDigits(value).slice(0, 11);
+      if (digits.length <= 2) return digits ? `(${digits}` : "";
+      if (digits.length <= 6) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+      if (digits.length <= 10) {
+        return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
+      }
+      return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+    }
+
+    function normalizeShoeSize(val) {
+      const str = String(val || "").trim();
+      if (SHOE_SIZES.includes(str)) return str;
+      const num = Number(str);
+      if (!Number.isFinite(num)) return "";
+      if (num === 35 || num === 36) return "35/36";
+      if (num === 37 || num === 38) return "37/38";
+      if (num === 39 || num === 40) return "39/40";
+      if (num === 41 || num === 42) return "41/42";
+      if (num === 43 || num === 44) return "43/44";
+      if (num === 45 || num === 46) return "45/46";
+      return "";
+    }
+
+    function formatCurrencyBRL(value, showCents = false) {
+      const num = Number(value);
+      if (!Number.isFinite(num)) return "—";
+      return num.toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+        minimumFractionDigits: showCents ? 2 : 0,
+        maximumFractionDigits: showCents ? 2 : 0,
+      });
+    }
+
+    function parseBudgetNumber(val) {
+      if (typeof val === "number" && Number.isFinite(val)) return val;
+      const match = String(val || "").match(/\d+(?:[.,]\d+)?/);
+      if (!match) return null;
+      const parsed = Number(match[0].replace(",", "."));
+      return Number.isFinite(parsed) ? parsed : null;
+    }
+
+    function clampBudget(val) {
+      const num = parseBudgetNumber(val);
+      if (num === null) return BUDGET_DEFAULT;
+      const clamped = Math.min(BUDGET_MAX, Math.max(BUDGET_MIN, num));
+      return Math.round(clamped / BUDGET_STEP) * BUDGET_STEP;
+    }
+
+    function formatDateLongPtBR(isoDate) {
+      const [y, m, d] = isoDate.split("-").map(Number);
+      const dt = new Date(y, m - 1, d);
+      return dt.toLocaleDateString("pt-BR", {
+        weekday: "long",
+        day: "2-digit",
+        month: "long",
+      });
+    }
+
+    function formatDateShortWithWeekday(isoDate) {
+      const [y, m, d] = isoDate.split("-").map(Number);
+      const dt = new Date(y, m - 1, d);
+      const wd = dt
+        .toLocaleDateString("pt-BR", { weekday: "short" })
+        .replace(".", "");
+      const capWd = wd.charAt(0).toUpperCase() + wd.slice(1);
+      return `${capWd}, ${String(d).padStart(2, "0")}/${String(m).padStart(2, "0")}`;
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement("div");
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function normalizeKey(str) {
+      return String(str || "")
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+    }
+
+    function safeStorageGet(key) {
+      try {
+        return localStorage.getItem(key);
+      } catch {
+        return null;
+      }
+    }
+
+    function safeStorageSet(key, val) {
+      try {
+        localStorage.setItem(key, val);
+      } catch {
+        // Ignora caso o navegador restrinja localStorage
+      }
+    }
+
+    function showBanner(message, type = "info") {
+      const el = document.getElementById("statusBanner");
+      const styles = {
+        info: "bg-blue-50 border-blue-200 text-blue-900",
+        success: "bg-emerald-50 border-emerald-200 text-emerald-900",
+        warning: "bg-amber-50 border-amber-200 text-amber-900",
+        danger: "bg-red-50 border-red-200 text-red-900 font-medium",
+      };
+      el.textContent = message;
+      el.className = `mb-4 px-4 py-3 rounded-xl text-sm border ${styles[type] || styles.info}`;
+    }
+
+    function hideBanner() {
+      const el = document.getElementById("statusBanner");
+      el.className = "hidden";
+      el.textContent = "";
+    }
+
+    function setStepError(step, message) {
+      const el = document.getElementById(`errorStep${step}`);
+      if (!el) return;
+      if (message) {
+        el.textContent = message;
+        el.classList.remove("hidden");
+      } else {
+        el.textContent = "";
+        el.classList.add("hidden");
+      }
+    }
+
+    function normalizeVoteLocations(vote) {
+      if (Array.isArray(vote.locais)) {
+        return vote.locais.map((l) => String(l || "").trim()).filter(Boolean);
+      }
+      if (typeof vote.local === "string" && vote.local.trim()) {
+        return vote.local
+          .split(" | ")
+          .map((l) => l.trim())
+          .filter(Boolean);
+      }
+      return [];
+    }
+
+    /* ==========================================================================
+       CAMADA DE DADOS (MOCK LOCAL OU GOOGLE APPS SCRIPT)
+       ========================================================================== */
+    let memoryMockVotes = null;
+
+    function getMockVotes() {
+      const raw = safeStorageGet(STORAGE_KEYS.MOCK_DB);
+      if (raw) {
+        try {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) return parsed;
+        } catch {
+          // Segue para inicialização padrão
+        }
+      }
+      if (!memoryMockVotes) {
+        memoryMockVotes = INITIAL_MOCK_VOTES.map((v) => ({ ...v }));
+      }
+      safeStorageSet(STORAGE_KEYS.MOCK_DB, JSON.stringify(memoryMockVotes));
+      return memoryMockVotes;
+    }
+
+    function saveMockVotes(votes) {
+      memoryMockVotes = votes;
+      safeStorageSet(STORAGE_KEYS.MOCK_DB, JSON.stringify(votes));
+    }
+
+    function isUsingMock() {
+      return USE_MOCK_DATA || !API_URL || API_URL.includes("YOUR_GOOGLE_APPS_SCRIPT");
+    }
+
+    async function apiLookupUser(idUsuario) {
+      if (isUsingMock()) {
+        const votes = getMockVotes();
+        const found = votes.find((v) => v.idUsuario === idUsuario);
+        return found ? { ok: true, found: true, vote: found } : { ok: true, found: false };
+      }
+
+      const url = `${API_URL}?action=lookup&id=${encodeURIComponent(idUsuario)}`;
+      const res = await fetch(url, { method: "GET" });
+      if (!res.ok) throw new Error("Falha ao consultar voto anterior.");
+      return res.json();
+    }
+
+    async function apiFetchResults() {
+      if (isUsingMock()) {
+        const votes = getMockVotes().map(({ idUsuario, ...publicVote }) => publicVote);
+        return { ok: true, total: votes.length, votes };
+      }
+
+      const res = await fetch(API_URL, { method: "GET" });
+      if (!res.ok) throw new Error("Falha ao carregar resultados.");
+      return res.json();
+    }
+
+    async function apiSubmitVote(payload) {
+      if (isVotingClosed()) {
+        return {
+          ok: false,
+          code: "DEADLINE_EXPIRED",
+          error: "Votação encerrada em 06/12 às 23:59.",
+        };
+      }
+
+      if (isUsingMock()) {
+        const votes = getMockVotes();
+        const record = {
+          idUsuario: payload.idUsuario,
+          timestamp: new Date().toISOString(),
+          nome: payload.nome,
+          datasHorarios: payload.datasHorarios,
+          premios: payload.premios,
+          numeroChinelo: payload.numeroChinelo,
+          comidas: payload.comidas,
+          bebidas: payload.bebidas,
+          locais: payload.locais,
+          orcamento: payload.orcamento,
+        };
+        const idx = votes.findIndex((v) => v.idUsuario === payload.idUsuario);
+        const updated = idx >= 0;
+        if (updated) {
+          votes[idx] = record;
+        } else {
+          votes.push(record);
+        }
+        saveMockVotes(votes);
+        await new Promise((r) => setTimeout(r, 350));
+        return { ok: true, updated };
+      }
+
+      // Envio como text/plain evita preflight CORS OPTIONS no Google Apps Script
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error("Erro de comunicação ao salvar seu voto.");
+      return res.json();
+    }
+
+    /* ==========================================================================
+       NAVEGAÇÃO ENTRE AS 8 TELAS
+       ========================================================================== */
+    function goToStep(stepNumber) {
+      if (isVotingClosed() && stepNumber !== 7 && stepNumber !== 8) {
+        stepNumber = 7;
+      }
+
+      if (stepNumber !== 7 && stepNumber !== 8) {
+        state.previousStepBeforeResults = stepNumber;
+      }
+      state.currentStep = stepNumber;
+
+      document.querySelectorAll(".step-screen").forEach((sec) => {
+        const isCurrent = Number(sec.dataset.step) === stepNumber;
+        sec.classList.toggle("hidden", !isCurrent);
+      });
+
+      const progressContainer = document.getElementById("progressContainer");
+      const btnToggleResults = document.getElementById("btnToggleResults");
+
+      if (stepNumber === 7 || stepNumber === 8) {
+        progressContainer.classList.add("hidden");
+        if (!isVotingClosed()) {
+          btnToggleResults.classList.remove("hidden");
+          btnToggleResults.textContent = "Menu Inicial";
+        }
+        if (stepNumber === 7) {
+          loadAndRenderResults();
+        } else {
+          loadAndRenderGroupCalendar();
+        }
+      } else {
+        progressContainer.classList.remove("hidden");
+        btnToggleResults.classList.remove("hidden");
+        btnToggleResults.textContent = "Ver Resultados";
+        document.getElementById("progressLabel").textContent = `Passo ${stepNumber} de 6`;
+        document.getElementById("progressStepName").textContent = STEP_NAMES[stepNumber] || "";
+        document.getElementById("progressFill").style.width = `${(stepNumber / 6) * 100}%`;
+      }
+
+      if (stepNumber === 6) {
+        syncBudgetSliderUI(state.form.orcamento);
+        renderReviewSummary();
+      }
+
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    /* ==========================================================================
+       TELA 1: CADASTRO E PREENCHIMENTO AUTOMÁTICO DE VOTO EXISTENTE
+       ========================================================================== */
+    function resetChoicesForNewUser(identity) {
+      state.isEditingExisting = false;
+      state.activeDateISO = null;
+      state.form = createEmptyFormState(identity);
+
+      document.getElementById("inputPrizeOther").value = "";
+      document.getElementById("inputFoodOther").value = "";
+      document.getElementById("inputLocationOther").value = "";
+
+      renderCalendar();
+      renderTimeSlotPanel();
+      renderSelectedDatesSummary();
+      renderAllOptionGrids();
+      renderShoeSizeGrid();
+      syncBudgetSliderUI(BUDGET_DEFAULT);
+    }
+
+    function prefillVoteData(vote, typedName = "") {
+      state.isEditingExisting = true;
+
+      const finalName = typedName && typedName.trim() ? typedName.trim() : (vote.nome || state.form.nome);
+      state.form.nome = finalName;
+      document.getElementById("inputNome").value = finalName;
+
+      // Datas e horários
+      state.form.datasHorarios = {};
+      if (vote.datasHorarios && typeof vote.datasHorarios === "object") {
+        Object.entries(vote.datasHorarios).forEach(([dateKey, slots]) => {
+          if (Array.isArray(slots) && slots.length > 0) {
+            state.form.datasHorarios[dateKey] = [...slots].sort();
+          }
+        });
+      }
+      state.activeDateISO = Object.keys(state.form.datasHorarios).sort()[0] || null;
+
+      // Prêmios
+      const stdPrizes = PRIZE_OPTIONS.filter((o) => o !== "Outro");
+      state.form.premios = [];
+      state.form.premioOutro = "";
+      (vote.premios || []).forEach((item) => {
+        if (stdPrizes.includes(item)) {
+          state.form.premios.push(item);
+        } else if (item) {
+          if (!state.form.premios.includes("Outro")) state.form.premios.push("Outro");
+          state.form.premioOutro = item;
+        }
+      });
+      document.getElementById("inputPrizeOther").value = state.form.premioOutro;
+
+      // Número do chinelo
+      state.form.numeroChinelo = normalizeShoeSize(vote.numeroChinelo);
+
+      // Comidas
+      const stdFoods = FOOD_OPTIONS.filter((o) => o !== "Outro");
+      state.form.comidas = [];
+      state.form.comidaOutro = "";
+      (vote.comidas || []).forEach((item) => {
+        if (stdFoods.includes(item)) {
+          state.form.comidas.push(item);
+        } else if (item) {
+          if (!state.form.comidas.includes("Outro")) state.form.comidas.push("Outro");
+          state.form.comidaOutro = item;
+        }
+      });
+      document.getElementById("inputFoodOther").value = state.form.comidaOutro;
+
+      // Bebidas
+      state.form.bebidas = Array.isArray(vote.bebidas)
+        ? vote.bebidas.filter((b) => DRINK_OPTIONS.includes(b))
+        : [];
+
+      // Locais
+      const stdLocations = LOCATION_OPTIONS.filter((o) => o !== "Outro");
+      const rawLocais = normalizeVoteLocations(vote);
+      state.form.locais = [];
+      state.form.localOutro = "";
+      rawLocais.forEach((loc) => {
+        if (stdLocations.includes(loc)) {
+          if (!state.form.locais.includes(loc)) state.form.locais.push(loc);
+        } else if (loc) {
+          if (!state.form.locais.includes("Outro")) state.form.locais.push("Outro");
+          state.form.localOutro = loc;
+        }
+      });
+      document.getElementById("inputLocationOther").value = state.form.localOutro;
+
+      // Orçamento
+      state.form.orcamento = clampBudget(vote.orcamento);
+
+      renderCalendar();
+      renderTimeSlotPanel();
+      renderSelectedDatesSummary();
+      renderAllOptionGrids();
+      renderShoeSizeGrid();
+      syncBudgetSliderUI(state.form.orcamento);
+    }
+
+    async function handleStep1Continue() {
+      if (isVotingClosed()) {
+        enforceClosedVotingState();
+        return;
+      }
+
+      setStepError(1, "");
+      const nome = document.getElementById("inputNome").value.trim();
+      const whatsappRaw = document.getElementById("inputWhatsapp").value.trim();
+      const digits = stripDigits(whatsappRaw);
+
+      if (nome.length < 2) {
+        setStepError(1, "Digite seu nome completo para continuar.");
+        return;
+      }
+      if (digits.length < 10 || digits.length > 11) {
+        setStepError(1, "Digite um número de WhatsApp válido com DDD (10 ou 11 dígitos).");
+        return;
+      }
+
+      const previousId = state.form.idUsuario;
+      const formattedPhone = formatPhoneMask(digits);
+
+      state.form.nome = nome;
+      state.form.whatsapp = formattedPhone;
+      state.form.idUsuario = digits;
+
+      safeStorageSet(STORAGE_KEYS.USER_ID, digits);
+      safeStorageSet(STORAGE_KEYS.USER_NAME, nome);
+      safeStorageSet(STORAGE_KEYS.USER_PHONE, formattedPhone);
+
+      const btn = document.getElementById("btnStep1Next");
+      btn.disabled = true;
+      btn.textContent = "Verificando cadastro...";
+
+      try {
+        const lookup = await apiLookupUser(digits);
+        if (lookup && lookup.found && lookup.vote) {
+          prefillVoteData(lookup.vote, nome);
+          showBanner(
+            "Encontramos seu voto anterior! Você pode revisar e atualizar suas escolhas abaixo.",
+            "info"
+          );
+        } else {
+          if (previousId && previousId !== digits) {
+            resetChoicesForNewUser({
+              idUsuario: digits,
+              nome,
+              whatsapp: formattedPhone,
+            });
+          } else {
+            state.isEditingExisting = false;
+          }
+
+          if (isUsingMock()) {
+            showBanner(
+              "Modo demonstração ativo — seus testes ficam salvos apenas neste navegador.",
+              "warning"
+            );
+          } else {
+            hideBanner();
+          }
+        }
+        goToStep(2);
+      } catch (err) {
+        console.error(err);
+        setStepError(1, "Não foi possível verificar seu cadastro agora. Tente novamente.");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Continuar";
+      }
+    }
+
+    /* ==========================================================================
+       TELA 2: CALENDÁRIO INTERATIVO DE VOTAÇÃO E HORÁRIOS
+       ========================================================================== */
+    function renderCalendar() {
+      const { year, month, label } = ALLOWED_MONTHS[state.calendarMonthIndex];
+      document.getElementById("calendarMonthLabel").textContent = label;
+      document.getElementById("btnPrevMonth").disabled = state.calendarMonthIndex === 0;
+      document.getElementById("btnNextMonth").disabled =
+        state.calendarMonthIndex === ALLOWED_MONTHS.length - 1;
+
+      const grid = document.getElementById("calendarGrid");
+      grid.innerHTML = "";
+
+      const firstWeekday = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      const now = new Date();
+      const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+      for (let i = 0; i < firstWeekday; i++) {
+        const emptyCell = document.createElement("div");
+        emptyCell.className = "min-h-[52px]";
+        grid.appendChild(emptyCell);
+      }
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const iso = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+        const cellDate = new Date(year, month, day);
+        const isPast = cellDate < todayMidnight;
+        const slots = state.form.datasHorarios[iso] || [];
+        const hasSlots = slots.length > 0;
+        const isActive = state.activeDateISO === iso;
+
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.disabled = isPast;
+
+        let classes =
+          "min-h-[52px] rounded-xl border text-sm font-semibold flex flex-col items-center justify-center gap-0.5 py-1 px-0.5 transition ";
+
+        if (isPast) {
+          classes += "bg-gray-100 border-gray-200 text-gray-400 opacity-45 cursor-not-allowed";
+        } else if (hasSlots) {
+          classes += "bg-emerald-50 border-emerald-400 text-emerald-900 hover:border-emerald-600 cursor-pointer";
+        } else {
+          classes += "bg-white border-gray-200 text-[#111827] hover:border-[#111827] cursor-pointer";
+        }
+
+        if (isActive && !isPast) {
+          classes += " ring-2 ring-[#1d4ed8] border-[#1d4ed8]";
+        }
+
+        btn.className = classes;
+        btn.innerHTML = `
+          <span>${day}</span>
+          ${
+            hasSlots
+              ? `<span class="text-[10px] leading-none font-bold px-1.5 py-0.5 rounded-full bg-emerald-700 text-white">${slots.length}/${TIME_SLOTS.length}</span>`
+              : ""
+          }
+        `;
+
+        btn.addEventListener("click", () => {
+          state.activeDateISO = iso;
+          renderCalendar();
+          renderTimeSlotPanel();
+          if (window.innerWidth < 640) {
+            document.getElementById("timeSlotPanel").scrollIntoView({
+              behavior: "smooth",
+              block: "nearest",
+            });
+          }
+        });
+
+        grid.appendChild(btn);
+      }
+    }
+
+    function renderTimeSlotPanel() {
+      const panel = document.getElementById("timeSlotPanel");
+      const placeholder = document.getElementById("timeSlotPlaceholder");
+
+      if (!state.activeDateISO) {
+        panel.classList.add("hidden");
+        placeholder.classList.remove("hidden");
+        return;
+      }
+
+      panel.classList.remove("hidden");
+      placeholder.classList.add("hidden");
+
+      document.getElementById("activeDateTitle").textContent = formatDateLongPtBR(
+        state.activeDateISO
+      );
+
+      const selectedSlots = state.form.datasHorarios[state.activeDateISO] || [];
+      const allSelected = selectedSlots.length === TIME_SLOTS.length;
+
+      const btnAllDay = document.getElementById("btnAllDay");
+      btnAllDay.textContent = allSelected ? "Dia todo marcado (limpar)" : "Posso o dia todo";
+      btnAllDay.className = allSelected
+        ? "px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold border border-[#1d4ed8] bg-[#1d4ed8] text-white transition"
+        : "px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold border border-gray-300 bg-white text-[#111827] hover:border-[#111827] transition";
+
+      const slotsGrid = document.getElementById("timeSlotsGrid");
+      slotsGrid.innerHTML = "";
+
+      TIME_SLOTS.forEach((slot) => {
+        const isSelected = selectedSlots.includes(slot);
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = slot;
+        btn.className = isSelected
+          ? "py-3 px-2 rounded-xl border-2 border-[#111827] bg-[#111827] text-white text-sm font-semibold transition active:scale-[0.98]"
+          : "py-3 px-2 rounded-xl border border-gray-300 bg-white text-[#111827] text-sm font-semibold hover:border-[#111827] transition active:scale-[0.98]";
+
+        btn.addEventListener("click", () => toggleTimeSlot(state.activeDateISO, slot));
+        slotsGrid.appendChild(btn);
+      });
+    }
+
+    function toggleTimeSlot(isoDate, slot) {
+      const current = state.form.datasHorarios[isoDate] || [];
+      const exists = current.includes(slot);
+      const next = exists
+        ? current.filter((s) => s !== slot)
+        : [...current, slot].sort();
+
+      if (next.length === 0) {
+        delete state.form.datasHorarios[isoDate];
+      } else {
+        state.form.datasHorarios[isoDate] = next;
+      }
+
+      setStepError(2, "");
+      renderCalendar();
+      renderTimeSlotPanel();
+      renderSelectedDatesSummary();
+    }
+
+    function toggleAllDayForActiveDate() {
+      if (!state.activeDateISO) return;
+      const current = state.form.datasHorarios[state.activeDateISO] || [];
+      if (current.length === TIME_SLOTS.length) {
+        delete state.form.datasHorarios[state.activeDateISO];
+      } else {
+        state.form.datasHorarios[state.activeDateISO] = [...TIME_SLOTS];
+      }
+      setStepError(2, "");
+      renderCalendar();
+      renderTimeSlotPanel();
+      renderSelectedDatesSummary();
+    }
+
+    function renderSelectedDatesSummary() {
+      const container = document.getElementById("selectedDatesList");
+      const countBadge = document.getElementById("selectedDatesCount");
+      const sortedDates = Object.keys(state.form.datasHorarios).sort();
+
+      countBadge.textContent = `${sortedDates.length} ${sortedDates.length === 1 ? "dia" : "dias"}`;
+
+      if (sortedDates.length === 0) {
+        container.innerHTML = `<p class="text-sm text-gray-500">Nenhum dia marcado ainda.</p>`;
+        return;
+      }
+
+      container.innerHTML = "";
+      sortedDates.forEach((iso) => {
+        const slots = state.form.datasHorarios[iso];
+        const slotsLabel =
+          slots.length === TIME_SLOTS.length ? "Dia todo (12:00 às 20:00)" : slots.join(", ");
+
+        const item = document.createElement("div");
+        item.className =
+          "flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-sm";
+
+        item.innerHTML = `
+          <div class="selected-date-main flex-1 cursor-pointer">
+            <strong class="block font-semibold text-[#111827]">${escapeHtml(formatDateShortWithWeekday(iso))}</strong>
+            <span class="text-xs text-gray-500">${escapeHtml(slotsLabel)}</span>
+          </div>
+          <button
+            type="button"
+            aria-label="Remover dia"
+            class="btn-remove-date w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-red-600 hover:bg-red-50 text-lg font-medium transition"
+          >
+            &times;
+          </button>
+        `;
+
+        item.querySelector(".selected-date-main").addEventListener("click", () => {
+          const monthNum = Number(iso.split("-")[1]) - 1;
+          const monthIdx = ALLOWED_MONTHS.findIndex((m) => m.month === monthNum);
+          if (monthIdx >= 0) state.calendarMonthIndex = monthIdx;
+          state.activeDateISO = iso;
+          renderCalendar();
+          renderTimeSlotPanel();
+        });
+
+        item.querySelector(".btn-remove-date").addEventListener("click", () => {
+          delete state.form.datasHorarios[iso];
+          if (state.activeDateISO === iso) {
+            renderTimeSlotPanel();
+          }
+          renderCalendar();
+          renderSelectedDatesSummary();
+        });
+
+        container.appendChild(item);
+      });
+    }
+
+    /* ==========================================================================
+       TELAS 3 A 5: CARTÕES SELECIONÁVEIS
+       ========================================================================== */
+    function renderOptionGrid({ containerId, options, selectedValues, onToggle }) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = "";
+
+      options.forEach((opt) => {
+        const isSelected = selectedValues.includes(opt);
+        const displayLabel = opt === "Outro" ? "Outro:" : opt;
+
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = isSelected
+          ? "w-full flex items-center justify-between gap-3 text-left px-4 py-3.5 rounded-xl border-2 border-[#111827] bg-[#111827] text-white text-sm font-medium transition active:scale-[0.99]"
+          : "w-full flex items-center justify-between gap-3 text-left px-4 py-3.5 rounded-xl border border-gray-300 bg-white text-[#111827] text-sm font-medium hover:border-[#111827] transition active:scale-[0.99]";
+
+        const indicatorClasses = isSelected
+          ? "w-5 h-5 shrink-0 rounded-md border border-white bg-white text-[#111827] inline-flex items-center justify-center text-xs font-bold"
+          : "w-5 h-5 shrink-0 rounded-md border border-gray-400 inline-flex items-center justify-center text-xs font-bold";
+
+        btn.innerHTML = `
+          <span>${escapeHtml(displayLabel)}</span>
+          <span class="${indicatorClasses}">${isSelected ? "&#10003;" : ""}</span>
+        `;
+
+        btn.addEventListener("click", () => onToggle(opt));
+        container.appendChild(btn);
+      });
+    }
+
+    function renderAllOptionGrids() {
+      // Tela 3: Premiação
+      renderOptionGrid({
+        containerId: "prizesGrid",
+        options: PRIZE_OPTIONS,
+        selectedValues: state.form.premios,
+        onToggle: (opt) => {
+          const isAdding = !state.form.premios.includes(opt);
+          if (!isAdding) {
+            state.form.premios = state.form.premios.filter((i) => i !== opt);
+          } else {
+            state.form.premios.push(opt);
+          }
+          setStepError(3, "");
+          renderAllOptionGrids();
+          if (opt === "Chinelo" && isAdding && !state.form.numeroChinelo) {
+            highlightShoeSizeSection();
+          }
+        },
+      });
+      document
+        .getElementById("prizeOtherWrapper")
+        .classList.toggle("hidden", !state.form.premios.includes("Outro"));
+
+      // Tela 4: Comidas
+      renderOptionGrid({
+        containerId: "foodGrid",
+        options: FOOD_OPTIONS,
+        selectedValues: state.form.comidas,
+        onToggle: (opt) => {
+          if (state.form.comidas.includes(opt)) {
+            state.form.comidas = state.form.comidas.filter((i) => i !== opt);
+          } else {
+            state.form.comidas.push(opt);
+          }
+          setStepError(4, "");
+          renderAllOptionGrids();
+        },
+      });
+      document
+        .getElementById("foodOtherWrapper")
+        .classList.toggle("hidden", !state.form.comidas.includes("Outro"));
+
+      // Tela 4: Bebidas
+      renderOptionGrid({
+        containerId: "drinksGrid",
+        options: DRINK_OPTIONS,
+        selectedValues: state.form.bebidas,
+        onToggle: (opt) => {
+          if (state.form.bebidas.includes(opt)) {
+            state.form.bebidas = state.form.bebidas.filter((i) => i !== opt);
+          } else {
+            state.form.bebidas.push(opt);
+          }
+          setStepError(4, "");
+          renderAllOptionGrids();
+        },
+      });
+
+      // Tela 5: Local
+      renderOptionGrid({
+        containerId: "locationGrid",
+        options: LOCATION_OPTIONS,
+        selectedValues: state.form.locais,
+        onToggle: (opt) => {
+          if (state.form.locais.includes(opt)) {
+            state.form.locais = state.form.locais.filter((i) => i !== opt);
+          } else {
+            state.form.locais.push(opt);
+          }
+          setStepError(5, "");
+          renderAllOptionGrids();
+        },
+      });
+      document
+        .getElementById("locationOtherWrapper")
+        .classList.toggle("hidden", !state.form.locais.includes("Outro"));
+    }
+
+    /* ==========================================================================
+       TELA 3 (SUBSEÇÃO): NÚMERO DO CHINELO (35/36 A 45/46)
+       ========================================================================== */
+    function renderShoeSizeGrid() {
+      const container = document.getElementById("shoeSizeGrid");
+      const badge = document.getElementById("shoeSizeSelectedBadge");
+      container.innerHTML = "";
+
+      if (state.form.numeroChinelo) {
+        badge.textContent = `Nº ${state.form.numeroChinelo}`;
+        badge.className =
+          "text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-800";
+      } else {
+        badge.textContent = "Obrigatório";
+        badge.className =
+          "text-xs font-semibold px-2.5 py-0.5 rounded-full bg-white border border-gray-200 text-gray-500";
+      }
+
+      SHOE_SIZES.forEach((size) => {
+        const isSelected = state.form.numeroChinelo === size;
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = size;
+        btn.className = isSelected
+          ? "py-3.5 rounded-xl border-2 border-[#111827] bg-[#111827] text-white text-sm font-bold transition active:scale-[0.97]"
+          : "py-3.5 rounded-xl border border-gray-300 bg-white text-[#111827] text-sm font-semibold hover:border-[#111827] transition active:scale-[0.97]";
+
+        btn.addEventListener("click", () => {
+          state.form.numeroChinelo = size;
+          setStepError(3, "");
+          document.getElementById("shoeSizeSection").classList.remove("shoe-attention-pulse");
+          renderShoeSizeGrid();
+        });
+
+        container.appendChild(btn);
+      });
+    }
+
+    function highlightShoeSizeSection() {
+      const section = document.getElementById("shoeSizeSection");
+      section.classList.remove("shoe-attention-pulse");
+      void section.offsetWidth;
+      section.classList.add("shoe-attention-pulse");
+      section.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    /* ==========================================================================
+       TELA 6: SLIDER DE ORÇAMENTO (R$ 50 A R$ 150)
+       ========================================================================== */
+    function syncBudgetSliderUI(rawValue) {
+      const value = clampBudget(rawValue);
+      state.form.orcamento = value;
+
+      const slider = document.getElementById("budgetSlider");
+      slider.min = BUDGET_MIN;
+      slider.max = BUDGET_MAX;
+      slider.step = BUDGET_STEP;
+      slider.value = value;
+
+      const pct = ((value - BUDGET_MIN) / (BUDGET_MAX - BUDGET_MIN)) * 100;
+      slider.style.background = `linear-gradient(to right, #111827 0%, #111827 ${pct}%, #d1d5db ${pct}%, #d1d5db 100%)`;
+
+      document.getElementById("budgetValueDisplay").textContent = formatCurrencyBRL(value, false);
+
+      document.querySelectorAll(".budget-tick-btn").forEach((btn) => {
+        const tickVal = Number(btn.dataset.budgetTick);
+        const isExact = tickVal === value;
+        btn.className = isExact
+          ? "budget-tick-btn py-1.5 rounded-lg text-xs font-bold bg-[#111827] text-white transition"
+          : "budget-tick-btn py-1.5 rounded-lg text-xs font-semibold text-gray-500 hover:text-[#111827] hover:bg-gray-200/70 transition";
+      });
+    }
+
+    /* ==========================================================================
+       VALIDAÇÕES, REVISÃO E ENVIO DO VOTO
+       ========================================================================== */
+    function getResolvedPayload() {
+      const premioOutro = state.form.premioOutro.trim();
+      const comidaOutro = state.form.comidaOutro.trim();
+      const localOutro = state.form.localOutro.trim();
+
+      const premios = state.form.premios
+        .map((p) => (p === "Outro" ? premioOutro : p))
+        .filter(Boolean);
+
+      const comidas = state.form.comidas
+        .map((c) => (c === "Outro" ? comidaOutro : c))
+        .filter(Boolean);
+
+      const locais = state.form.locais
+        .map((l) => (l === "Outro" ? localOutro : l))
+        .filter(Boolean);
+
+      return {
+        idUsuario: state.form.idUsuario,
+        nome: state.form.nome,
+        whatsapp: state.form.whatsapp,
+        datasHorarios: state.form.datasHorarios,
+        premios,
+        numeroChinelo: state.form.numeroChinelo,
+        comidas,
+        bebidas: state.form.bebidas,
+        locais,
+        local: locais.join(" | "),
+        orcamento: clampBudget(state.form.orcamento),
+      };
+    }
+
+    function validateStep(step) {
+      setStepError(step, "");
+
+      if (step === 2) {
+        const validDates = Object.values(state.form.datasHorarios).filter(
+          (slots) => Array.isArray(slots) && slots.length > 0
+        );
+        if (validDates.length === 0) {
+          setStepError(2, "Marque pelo menos 1 dia e 1 horário no calendário para continuar.");
+          return false;
+        }
+      }
+
+      if (step === 3) {
+        if (state.form.premios.length === 0) {
+          setStepError(3, "Selecione pelo menos uma opção de prêmio.");
+          return false;
+        }
+        if (state.form.premios.includes("Outro") && !state.form.premioOutro.trim()) {
+          setStepError(3, "Digite qual prêmio você sugere no campo 'Outro'.");
+          return false;
+        }
+        if (!SHOE_SIZES.includes(String(state.form.numeroChinelo || ""))) {
+          setStepError(3, "Escolha o número do seu chinelo (35/36 a 45/46) para continuar.");
+          highlightShoeSizeSection();
+          return false;
+        }
+      }
+
+      if (step === 4) {
+        if (state.form.comidas.length === 0) {
+          setStepError(4, "Selecione pelo menos uma opção de comida.");
+          return false;
+        }
+        if (state.form.comidas.includes("Outro") && !state.form.comidaOutro.trim()) {
+          setStepError(4, "Digite sua sugestão de comida no campo 'Outro'.");
+          return false;
+        }
+        if (state.form.bebidas.length === 0) {
+          setStepError(4, "Selecione pelo menos uma opção de bebida.");
+          return false;
+        }
+      }
+
+      if (step === 5) {
+        if (state.form.locais.length === 0) {
+          setStepError(5, "Selecione pelo menos uma opção de local.");
+          return false;
+        }
+        if (state.form.locais.includes("Outro") && !state.form.localOutro.trim()) {
+          setStepError(5, "Digite qual outro local você sugere no campo 'Outro'.");
+          return false;
+        }
+      }
+
+      if (step === 6) {
+        const b = parseBudgetNumber(state.form.orcamento);
+        if (b === null || b < BUDGET_MIN || b > BUDGET_MAX) {
+          setStepError(6, `Escolha um orçamento entre R$ ${BUDGET_MIN} e R$ ${BUDGET_MAX}.`);
+          return false;
+        }
+      }
+
+      return true;
+    }
+
+    function renderReviewSummary() {
+      const payload = getResolvedPayload();
+      const datesCount = Object.keys(payload.datasHorarios).length;
+      const rows = [
+        ["Nome", payload.nome || "—"],
+        ["Chinelo", payload.numeroChinelo ? `Nº ${payload.numeroChinelo}` : "—"],
+        ["Datas", `${datesCount} ${datesCount === 1 ? "dia marcado" : "dias marcados"}`],
+        ["Prêmios", payload.premios.join(", ") || "—"],
+        ["Comidas", payload.comidas.join(", ") || "—"],
+        ["Bebidas", payload.bebidas.join(", ") || "—"],
+        ["Locais", payload.locais.join(", ") || "—"],
+        ["Orçamento", `${formatCurrencyBRL(payload.orcamento, false)} por pessoa`],
+      ];
+
+      const dl = document.getElementById("reviewSummary");
+      dl.innerHTML = rows
+        .map(
+          ([k, v]) => `
+          <div class="grid grid-cols-1 sm:grid-cols-[100px_1fr] gap-0.5 sm:gap-2">
+            <dt class="text-gray-500 font-semibold">${escapeHtml(k)}</dt>
+            <dd class="text-[#111827] font-medium">${escapeHtml(v)}</dd>
+          </div>`
+        )
+        .join("");
+    }
+
+    async function handleSubmitVote() {
+      if (isVotingClosed()) {
+        updateDeadlineUI();
+        return;
+      }
+
+      if (!validateStep(6)) return;
+
+      const btn = document.getElementById("btnSubmitVote");
+      btn.disabled = true;
+      btn.textContent = "Enviando voto...";
+
+      try {
+        const payload = getResolvedPayload();
+        const res = await apiSubmitVote(payload);
+
+        if (!res || !res.ok) {
+          if (res && res.code === "DEADLINE_EXPIRED") {
+            enforceClosedVotingState();
+            return;
+          }
+          throw new Error(res?.error || "Erro desconhecido ao salvar.");
+        }
+
+        state.isEditingExisting = true;
+        showBanner(
+          res.updated
+            ? "Seu voto foi atualizado com sucesso!"
+            : "Voto registrado com sucesso! Confira o placar atualizado abaixo.",
+          "success"
+        );
+        goToStep(7);
+      } catch (err) {
+        console.error(err);
+        setStepError(
+          6,
+          err && err.message
+            ? err.message
+            : "Não foi possível salvar seu voto. Verifique a conexão e tente novamente."
+        );
+      } finally {
+        if (!isVotingClosed()) {
+          btn.disabled = false;
+          btn.textContent = "Confirmar e Enviar Voto";
+        }
+      }
+    }
+
+    /* ==========================================================================
+       TELA 7: PLACAR AO VIVO (RESULTADOS)
+       ========================================================================== */
+    function countOccurrencesNormalized(votes, extractor, canonicalLabels = []) {
+      const canonicalMap = {};
+      canonicalLabels.forEach((lbl) => {
+        canonicalMap[normalizeKey(lbl)] = lbl;
+      });
+
+      const buckets = {};
+      votes.forEach((v) => {
+        const seenInVote = new Set();
+        extractor(v).forEach((rawVal) => {
+          const clean = String(rawVal || "").trim();
+          if (!clean) return;
+          const key = normalizeKey(clean);
+          if (!key || seenInVote.has(key)) return;
+          seenInVote.add(key);
+
+          if (!buckets[key]) {
+            const displayLabel =
+              canonicalMap[key] || clean.charAt(0).toUpperCase() + clean.slice(1);
+            buckets[key] = { label: displayLabel, count: 0 };
+          }
+          buckets[key].count += 1;
+        });
+      });
+
+      return Object.values(buckets).sort(
+        (a, b) => b.count - a.count || a.label.localeCompare(b.label, "pt-BR")
+      );
+    }
+
+    function renderProgressBars(
+      containerId,
+      items,
+      totalParticipants,
+      unitSingular = "voto",
+      unitPlural = "votos"
+    ) {
+      const container = document.getElementById(containerId);
+      if (!items.length || totalParticipants === 0) {
+        container.innerHTML = `<p class="text-sm text-gray-500">Sem votos registrados ainda.</p>`;
+        return;
+      }
+
+      const maxCount = items[0].count;
+      container.innerHTML = items
+        .map((item, idx) => {
+          const pct = Math.round((item.count / totalParticipants) * 100);
+          const isLeader = item.count === maxCount && maxCount > 0;
+          const unit = item.count === 1 ? unitSingular : unitPlural;
+          return `
+            <div>
+              <div class="flex items-baseline justify-between gap-2 text-sm mb-1">
+                <span class="font-semibold text-[#111827]">
+                  ${idx === 0 && maxCount > 0 ? '<span class="text-[#1d4ed8] mr-1">#1</span>' : ""}${escapeHtml(item.label)}
+                </span>
+                <span class="text-xs sm:text-sm font-semibold text-gray-500 shrink-0 tabular-nums">
+                  ${item.count} ${unit} (${pct}%)
+                </span>
+              </div>
+              <div class="h-2.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                <div
+                  class="h-full rounded-full transition-all duration-300 ${isLeader ? "bg-[#1d4ed8]" : "bg-[#111827]"}"
+                  style="width: ${pct}%;"
+                ></div>
+              </div>
+            </div>
+          `;
+        })
+        .join("");
+    }
+
+    function renderBudgetAnalytics(votes) {
+      const statsContainer = document.getElementById("budgetStatsCards");
+      const rangesContainer = document.getElementById("resultBudgetRanges");
+
+      const numericBudgets = votes
+        .map((v) => parseBudgetNumber(v.orcamento))
+        .filter((n) => n !== null && n >= BUDGET_MIN && n <= BUDGET_MAX)
+        .sort((a, b) => a - b);
+
+      if (numericBudgets.length === 0) {
+        statsContainer.innerHTML = "";
+        rangesContainer.innerHTML = `<p class="text-sm text-gray-500">Sem votos de orçamento registrados ainda.</p>`;
+        return;
+      }
+
+      const sum = numericBudgets.reduce((acc, n) => acc + n, 0);
+      const mean = sum / numericBudgets.length;
+      const mid = Math.floor(numericBudgets.length / 2);
+      const median =
+        numericBudgets.length % 2 !== 0
+          ? numericBudgets[mid]
+          : (numericBudgets[mid - 1] + numericBudgets[mid]) / 2;
+      const minVal = numericBudgets[0];
+      const maxVal = numericBudgets[numericBudgets.length - 1];
+
+      const meanHasDecimals = Math.abs(mean - Math.round(mean)) > 0.001;
+      const medianHasDecimals = Math.abs(median - Math.round(median)) > 0.001;
+
+      statsContainer.innerHTML = `
+        <div class="p-3 rounded-xl bg-gray-50 border border-gray-200 text-center">
+          <span class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500">Média</span>
+          <strong class="block text-base sm:text-lg font-extrabold text-[#111827] mt-0.5 tabular-nums">
+            ${escapeHtml(formatCurrencyBRL(mean, meanHasDecimals))}
+          </strong>
+        </div>
+        <div class="p-3 rounded-xl bg-gray-50 border border-gray-200 text-center">
+          <span class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500">Mediana</span>
+          <strong class="block text-base sm:text-lg font-extrabold text-[#1d4ed8] mt-0.5 tabular-nums">
+            ${escapeHtml(formatCurrencyBRL(median, medianHasDecimals))}
+          </strong>
+        </div>
+        <div class="p-3 rounded-xl bg-gray-50 border border-gray-200 text-center">
+          <span class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500">Faixa</span>
+          <strong class="block text-sm sm:text-base font-extrabold text-[#111827] mt-1 tabular-nums">
+            ${escapeHtml(formatCurrencyBRL(minVal, false))} – ${escapeHtml(formatCurrencyBRL(maxVal, false))}
+          </strong>
+        </div>
+      `;
+
+      const buckets = [
+        { label: "R$ 50 a R$ 70", count: 0 },
+        { label: "R$ 75 a R$ 95", count: 0 },
+        { label: "R$ 100 a R$ 120", count: 0 },
+        { label: "R$ 125 a R$ 150", count: 0 },
+      ];
+
+      numericBudgets.forEach((val) => {
+        if (val <= 70) buckets[0].count += 1;
+        else if (val <= 95) buckets[1].count += 1;
+        else if (val <= 120) buckets[2].count += 1;
+        else buckets[3].count += 1;
+      });
+
+      const maxCount = Math.max(...buckets.map((b) => b.count));
+      rangesContainer.innerHTML = buckets
+        .map((b) => {
+          const pct = Math.round((b.count / numericBudgets.length) * 100);
+          const isLeader = b.count === maxCount && maxCount > 0;
+          const unit = b.count === 1 ? "voto" : "votos";
+          return `
+            <div>
+              <div class="flex items-baseline justify-between gap-2 text-sm mb-1">
+                <span class="font-semibold text-[#111827]">${escapeHtml(b.label)}</span>
+                <span class="text-xs sm:text-sm font-semibold text-gray-500 shrink-0 tabular-nums">
+                  ${b.count} ${unit} (${pct}%)
+                </span>
+              </div>
+              <div class="h-2.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                <div
+                  class="h-full rounded-full transition-all duration-300 ${isLeader ? "bg-[#1d4ed8]" : "bg-[#111827]"}"
+                  style="width: ${pct}%;"
+                ></div>
+              </div>
+            </div>
+          `;
+        })
+        .join("");
+    }
+
+    function getCopyableShoeListText(votes) {
+      return votes
+        .map((v) => ({ nome: String(v.nome || "").trim(), size: normalizeShoeSize(v.numeroChinelo) }))
+        .filter((item) => item.nome && item.size)
+        .map((item) => `${item.nome} ${item.size}`)
+        .join("\n");
+    }
+
+    function copyTextToClipboard(text) {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.setAttribute("readonly", "");
+      textarea.style.position = "fixed";
+      textarea.style.top = "-9999px";
+      textarea.style.left = "-9999px";
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      textarea.setSelectionRange(0, textarea.value.length);
+
+      let copied = false;
+      try {
+        copied = document.execCommand("copy");
+      } catch {
+        copied = false;
+      }
+      document.body.removeChild(textarea);
+
+      if (!copied && navigator.clipboard && navigator.clipboard.writeText) {
+        return navigator.clipboard.writeText(text).then(() => true).catch(() => false);
+      }
+      return Promise.resolve(copied);
+    }
+
+    function renderShoeSizeResults(votes) {
+      const preEl = document.getElementById("shoeListPre");
+      const summaryEl = document.getElementById("shoeSizeSummary");
+      const btnCopy = document.getElementById("btnCopyShoes");
+
+      const validEntries = votes
+        .map((v) => ({ nome: String(v.nome || "").trim(), size: normalizeShoeSize(v.numeroChinelo) }))
+        .filter((item) => item.nome && item.size);
+
+      if (validEntries.length === 0) {
+        preEl.textContent = "Nenhuma numeração informada ainda.";
+        summaryEl.textContent = "Resumo por tamanho: aguardando votos.";
+        btnCopy.disabled = true;
+        return;
+      }
+
+      btnCopy.disabled = false;
+      preEl.textContent = validEntries.map((item) => `${item.nome} ${item.size}`).join("\n");
+
+      const sizeCounts = {};
+      validEntries.forEach((item) => {
+        sizeCounts[item.size] = (sizeCounts[item.size] || 0) + 1;
+      });
+
+      const sortedSizes = Object.entries(sizeCounts)
+        .sort((a, b) => SHOE_SIZES.indexOf(a[0]) - SHOE_SIZES.indexOf(b[0]))
+        .map(([size, count]) => `Nº ${size} (${count})`);
+
+      summaryEl.innerHTML = `<strong class="text-[#111827]">Resumo por tamanho:</strong> ${escapeHtml(
+        sortedSizes.join(" • ")
+      )}`;
+    }
+
+    function buildIndividualAvailabilityHtml(votes) {
+      if (!votes.length) {
+        return `<p class="text-sm text-gray-500">Ninguém votou ainda.</p>`;
+      }
+
+      return votes
+        .map((v) => {
+          const map = v.datasHorarios || {};
+          const sortedDates = Object.keys(map)
+            .filter((iso) => Array.isArray(map[iso]) && map[iso].length > 0)
+            .sort();
+
+          const linesHtml = sortedDates.length
+            ? sortedDates
+                .map((iso) => {
+                  const slots = [...map[iso]].sort();
+                  const slotsText =
+                    slots.length === TIME_SLOTS.length
+                      ? "Dia todo (12:00 às 20:00)"
+                      : slots.join(", ");
+                  return `
+                    <div class="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-xs sm:text-sm">
+                      <span class="font-semibold text-[#111827] shrink-0">${escapeHtml(
+                        formatDateShortWithWeekday(iso)
+                      )}:</span>
+                      <span class="text-gray-600">${escapeHtml(slotsText)}</span>
+                    </div>
+                  `;
+                })
+                .join("")
+            : `<p class="text-xs text-gray-500">Nenhuma data marcada.</p>`;
+
+          return `
+            <div class="p-3.5 rounded-xl bg-gray-50 border border-gray-200">
+              <div class="flex items-center justify-between gap-2 mb-1.5">
+                <strong class="text-sm font-bold text-[#111827]">${escapeHtml(v.nome)}</strong>
+                <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-white border border-gray-200 text-gray-600">
+                  ${sortedDates.length} ${sortedDates.length === 1 ? "dia" : "dias"}
+                </span>
+              </div>
+              <div class="space-y-1">${linesHtml}</div>
+            </div>
+          `;
+        })
+        .join("");
+    }
+
+    function renderIndividualAvailability(votes) {
+      document.getElementById("resultIndividualDates").innerHTML =
+        buildIndividualAvailabilityHtml(votes);
+    }
+
+    function buildDetailedDateRankings(votes) {
+      const uniqueKeys = new Set();
+      votes.forEach((v) => {
+        const map = v.datasHorarios || {};
+        Object.entries(map).forEach(([iso, slots]) => {
+          if (!Array.isArray(slots)) return;
+          slots.forEach((slot) => uniqueKeys.add(`${iso}|${slot}`));
+        });
+      });
+
+      const ranked = Array.from(uniqueKeys).map((key) => {
+        const [iso, slot] = key.split("|");
+        const available = [];
+        const unavailable = [];
+
+        votes.forEach((v) => {
+          const daySlots = Array.isArray((v.datasHorarios || {})[iso])
+            ? [...v.datasHorarios[iso]].sort()
+            : [];
+
+          if (daySlots.includes(slot)) {
+            available.push(v.nome);
+          } else {
+            unavailable.push({
+              nome: v.nome,
+              otherSlotsSameDay: daySlots,
+            });
+          }
+        });
+
+        return {
+          iso,
+          slot,
+          label: `${formatDateShortWithWeekday(iso)} às ${slot}`,
+          count: available.length,
+          available,
+          unavailable,
+        };
+      });
+
+      return ranked.sort(
+        (a, b) =>
+          b.count - a.count || a.iso.localeCompare(b.iso) || a.slot.localeCompare(b.slot)
+      );
+    }
+
+    function renderTop5DateCards(rankedDateSlots, total) {
+      const container = document.getElementById("resultTopDates");
+      if (!rankedDateSlots.length || total === 0) {
+        container.innerHTML = `<p class="text-sm text-gray-500">Sem votos registrados ainda.</p>`;
+        return;
+      }
+
+      const top5 = rankedDateSlots.slice(0, 5);
+      container.innerHTML = top5
+        .map((item, idx) => {
+          const pct = Math.round((item.count / total) * 100);
+          const isFirst = idx === 0;
+
+          const availableChips = item.available.length
+            ? item.available
+                .map(
+                  (nome) =>
+                    `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-[#ecfdf5] text-[#065f46] border border-emerald-200">${escapeHtml(
+                      nome
+                    )}</span>`
+                )
+                .join("")
+            : `<span class="text-xs text-gray-500">Ninguém</span>`;
+
+          const unavailableChips = item.unavailable.length
+            ? item.unavailable
+                .map((u) => {
+                  const detail =
+                    u.otherSlotsSameDay.length > 0
+                      ? `marcou ${u.otherSlotsSameDay.join(", ")}`
+                      : "não marcou esse dia";
+                  return `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-[#fef2f2] text-[#991b1b] border border-red-200"><strong class="font-semibold mr-1">${escapeHtml(
+                    u.nome
+                  )}</strong><span class="opacity-85">(${escapeHtml(detail)})</span></span>`;
+                })
+                .join("")
+            : `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-[#ecfdf5] text-[#065f46] border border-emerald-200">Todos os participantes podem!</span>`;
+
+          return `
+            <article class="p-4 rounded-xl border ${
+              isFirst ? "border-[#1d4ed8]/40 bg-blue-50/20" : "border-gray-200 bg-white"
+            }">
+              <div class="flex flex-wrap items-baseline justify-between gap-2 mb-2">
+                <div class="flex items-center gap-2">
+                  <span class="inline-flex items-center justify-center px-2 py-0.5 rounded-md text-xs font-bold ${
+                    isFirst ? "bg-[#1d4ed8] text-white" : "bg-gray-100 text-[#111827]"
+                  }">#${idx + 1}</span>
+                  <h4 class="text-sm sm:text-base font-bold text-[#111827]">
+                    ${escapeHtml(item.label)}
+                  </h4>
+                </div>
+                <span class="text-xs sm:text-sm font-semibold text-gray-600 tabular-nums">
+                  ${item.count} de ${total} podem — ${pct}%
+                </span>
+              </div>
+
+              <div class="h-2 w-full bg-gray-100 rounded-full overflow-hidden mb-3.5">
+                <div
+                  class="h-full rounded-full transition-all duration-300 ${
+                    isFirst ? "bg-[#1d4ed8]" : "bg-[#111827]"
+                  }"
+                  style="width: ${pct}%;"
+                ></div>
+              </div>
+
+              <div class="space-y-2.5">
+                <div>
+                  <span class="block text-[11px] font-bold uppercase tracking-wider text-[#065f46] mb-1.5">
+                    Podem ir (${item.available.length}):
+                  </span>
+                  <div class="flex flex-wrap gap-1.5">${availableChips}</div>
+                </div>
+
+                <div>
+                  <span class="block text-[11px] font-bold uppercase tracking-wider text-[#991b1b] mb-1.5">
+                    Não podem (${item.unavailable.length}):
+                  </span>
+                  <div class="flex flex-wrap gap-1.5">${unavailableChips}</div>
+                </div>
+              </div>
+            </article>
+          `;
+        })
+        .join("");
+    }
+
+    async function loadAndRenderResults() {
+      const loader = document.getElementById("resultsLoader");
+      const content = document.getElementById("resultsContent");
+      const subtitle = document.getElementById("resultsSubtitle");
+
+      loader.classList.remove("hidden");
+      content.classList.add("hidden");
+
+      try {
+        const data = await apiFetchResults();
+        const votes = Array.isArray(data.votes) ? data.votes : [];
+        state.lastRenderedVotes = votes;
+        const total = votes.length;
+
+        subtitle.textContent =
+          total === 0
+            ? "Ainda não há votos registrados."
+            : `Baseado em ${total} ${total === 1 ? "participante" : "participantes"} até o momento.`;
+
+        const rankedDateSlots = buildDetailedDateRankings(votes);
+        const hero = document.getElementById("topDateHero");
+
+        if (rankedDateSlots.length > 0) {
+          const best = rankedDateSlots[0];
+          const pct = Math.round((best.count / total) * 100);
+
+          const heroAvailableHtml = best.available
+            .map(
+              (nome) =>
+                `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-[#ecfdf5] text-[#065f46]">${escapeHtml(
+                  nome
+                )}</span>`
+            )
+            .join("");
+
+          const heroUnavailableHtml = best.unavailable.length
+            ? best.unavailable
+                .map((u) => {
+                  const note =
+                    u.otherSlotsSameDay.length > 0
+                      ? `pode às ${u.otherSlotsSameDay.join(", ")}`
+                      : "não pode nesse dia";
+                  return `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-[#fef2f2] text-[#991b1b]"><strong class="font-semibold mr-1">${escapeHtml(
+                    u.nome
+                  )}</strong><span class="opacity-85">(${escapeHtml(note)})</span></span>`;
+                })
+                .join("")
+            : `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-[#ecfdf5] text-[#065f46]">Todo mundo pode nesse horário!</span>`;
+
+          hero.innerHTML = `
+            <span class="text-[11px] font-bold uppercase tracking-wider text-gray-400">
+              Melhor dia e horário até agora (#1)
+            </span>
+            <div class="text-xl sm:text-2xl font-bold mt-1 mb-1">
+              ${escapeHtml(best.label)}
+            </div>
+            <p class="text-sm text-gray-300 mb-4">
+              ${best.count} de ${total} ${total === 1 ? "pessoa pode" : "pessoas podem"} (${pct}% do grupo)
+            </p>
+
+            <div class="pt-3.5 border-t border-white/15 space-y-3">
+              <div>
+                <span class="block text-[11px] font-bold uppercase tracking-wider text-emerald-300 mb-1.5">
+                  Podem ir (${best.available.length}):
+                </span>
+                <div class="flex flex-wrap gap-1.5">${heroAvailableHtml}</div>
+              </div>
+
+              <div>
+                <span class="block text-[11px] font-bold uppercase tracking-wider text-red-300 mb-1.5">
+                  Não podem nesse horário (${best.unavailable.length}):
+                </span>
+                <div class="flex flex-wrap gap-1.5">${heroUnavailableHtml}</div>
+              </div>
+            </div>
+          `;
+        } else {
+          hero.innerHTML = `
+            <span class="text-[11px] font-bold uppercase tracking-wider text-gray-400">
+              Melhor dia e horário (#1)
+            </span>
+            <div class="text-xl font-bold mt-1 mb-1">Aguardando votos</div>
+            <p class="text-sm text-gray-300">
+              Assim que a galera votar, o dia vencedor aparece aqui.
+            </p>
+          `;
+        }
+
+        renderTop5DateCards(rankedDateSlots, total);
+        renderIndividualAvailability(votes);
+
+        renderProgressBars(
+          "resultPrizes",
+          countOccurrencesNormalized(votes, (v) => v.premios || [], PRIZE_OPTIONS),
+          total
+        );
+        renderShoeSizeResults(votes);
+
+        renderProgressBars(
+          "resultFood",
+          countOccurrencesNormalized(votes, (v) => v.comidas || [], FOOD_OPTIONS),
+          total
+        );
+        renderProgressBars(
+          "resultDrinks",
+          countOccurrencesNormalized(votes, (v) => v.bebidas || [], DRINK_OPTIONS),
+          total
+        );
+        renderProgressBars(
+          "resultLocation",
+          countOccurrencesNormalized(votes, (v) => normalizeVoteLocations(v), LOCATION_OPTIONS),
+          total
+        );
+        renderBudgetAnalytics(votes);
+
+        document.getElementById("participantsCounter").textContent = `${total} ${
+          total === 1 ? "participante" : "participantes"
+        }`;
+        const chipsContainer = document.getElementById("participantsList");
+        chipsContainer.innerHTML = total
+          ? votes
+              .map(
+                (v) =>
+                  `<span class="px-3 py-1.5 rounded-full bg-gray-100 border border-gray-200 text-xs sm:text-sm font-semibold text-[#111827]">${escapeHtml(v.nome)}</span>`
+              )
+              .join("")
+          : `<p class="text-sm text-gray-500">Ninguém votou ainda.</p>`;
+
+        loader.classList.add("hidden");
+        content.classList.remove("hidden");
+      } catch (err) {
+        console.error(err);
+        loader.classList.add("hidden");
+        subtitle.textContent = "Erro ao carregar o placar. Tente atualizar novamente.";
+      }
+    }
+
+    /* ==========================================================================
+       TELA 8: CALENDÁRIO DETALHADO DA GALERA
+       ========================================================================== */
+    function computeDayPeakCount(votes, iso) {
+      let peak = 0;
+      TIME_SLOTS.forEach((slot) => {
+        let count = 0;
+        votes.forEach((v) => {
+          const slots = (v.datasHorarios || {})[iso];
+          if (Array.isArray(slots) && slots.includes(slot)) count += 1;
+        });
+        if (count > peak) peak = count;
+      });
+      return peak;
+    }
+
+    async function loadAndRenderGroupCalendar() {
+      const loader = document.getElementById("groupCalLoader");
+      const content = document.getElementById("groupCalContent");
+      const subtitle = document.getElementById("groupCalSubtitle");
+
+      loader.classList.remove("hidden");
+      content.classList.add("hidden");
+
+      try {
+        const data = await apiFetchResults();
+        const votes = Array.isArray(data.votes) ? data.votes : [];
+        state.lastRenderedVotes = votes;
+
+        subtitle.textContent =
+          votes.length === 0
+            ? "Ainda não há votos registrados."
+            : `Toque em qualquer data para ver o detalhe dos ${votes.length} ${
+                votes.length === 1 ? "participante" : "participantes"
+              }.`;
+
+        // Seleciona automaticamente o #1 melhor dia caso nenhum esteja selecionado
+        if (!state.groupCalSelectedISO && votes.length > 0) {
+          const ranked = buildDetailedDateRankings(votes);
+          if (ranked.length > 0) {
+            state.groupCalSelectedISO = ranked[0].iso;
+            const monthNum = Number(ranked[0].iso.split("-")[1]) - 1;
+            const mIdx = ALLOWED_MONTHS.findIndex((m) => m.month === monthNum);
+            if (mIdx >= 0) state.groupCalMonthIndex = mIdx;
+          }
+        }
+
+        renderGroupCalendarGrid(votes);
+        renderGroupCalendarDayDetail(votes);
+        document.getElementById("groupCalParticipantsSummary").innerHTML =
+          buildIndividualAvailabilityHtml(votes);
+
+        loader.classList.add("hidden");
+        content.classList.remove("hidden");
+      } catch (err) {
+        console.error(err);
+        loader.classList.add("hidden");
+        subtitle.textContent = "Erro ao carregar o calendário. Tente novamente.";
+      }
+    }
+
+    function renderGroupCalendarGrid(votes) {
+      const { year, month, label } = ALLOWED_MONTHS[state.groupCalMonthIndex];
+      const total = votes.length;
+
+      document.getElementById("groupCalMonthLabel").textContent = label;
+      document.getElementById("btnGroupPrevMonth").disabled = state.groupCalMonthIndex === 0;
+      document.getElementById("btnGroupNextMonth").disabled =
+        state.groupCalMonthIndex === ALLOWED_MONTHS.length - 1;
+
+      const grid = document.getElementById("groupCalGrid");
+      grid.innerHTML = "";
+
+      const firstWeekday = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      for (let i = 0; i < firstWeekday; i++) {
+        const emptyCell = document.createElement("div");
+        emptyCell.className = "min-h-[54px]";
+        grid.appendChild(emptyCell);
+      }
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const iso = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+        const peak = computeDayPeakCount(votes, iso);
+        const isSelected = state.groupCalSelectedISO === iso;
+        const ratio = total > 0 ? peak / total : 0;
+
+        let classes =
+          "min-h-[54px] rounded-xl border text-sm font-semibold flex flex-col items-center justify-center gap-0.5 py-1 px-0.5 cursor-pointer transition ";
+
+        if (peak === 0) {
+          classes += "bg-white border-gray-200 text-gray-500 hover:border-[#111827]";
+        } else if (ratio >= 0.6) {
+          classes += "bg-emerald-50 border-emerald-400 text-emerald-900 hover:border-emerald-600";
+        } else {
+          classes += "bg-amber-50 border-amber-300 text-amber-900 hover:border-amber-500";
+        }
+
+        if (isSelected) {
+          classes += " ring-2 ring-[#1d4ed8] border-[#1d4ed8]";
+        }
+
+        const badgeColor = ratio >= 0.6 ? "bg-emerald-700 text-white" : "bg-amber-600 text-white";
+
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = classes;
+        btn.innerHTML = `
+          <span>${day}</span>
+          ${
+            peak > 0
+              ? `<span class="text-[10px] leading-none font-bold px-1.5 py-0.5 rounded-full ${badgeColor}">${peak}/${total}</span>`
+              : ""
+          }
+        `;
+
+        btn.addEventListener("click", () => {
+          state.groupCalSelectedISO = iso;
+          renderGroupCalendarGrid(state.lastRenderedVotes);
+          renderGroupCalendarDayDetail(state.lastRenderedVotes);
+          if (window.innerWidth < 640) {
+            document.getElementById("groupCalDayDetail").scrollIntoView({
+              behavior: "smooth",
+              block: "nearest",
+            });
+          }
+        });
+
+        grid.appendChild(btn);
+      }
+    }
+
+    function renderGroupCalendarDayDetail(votes) {
+      const container = document.getElementById("groupCalDayDetail");
+      const iso = state.groupCalSelectedISO;
+      const total = votes.length;
+
+      if (!iso) {
+        container.innerHTML = `
+          <div class="p-4 rounded-xl border border-dashed border-gray-300 text-center text-sm text-gray-500">
+            Toque em qualquer dia no calendário acima para ver o detalhamento de cada horário.
+          </div>
+        `;
+        return;
+      }
+
+      const peak = computeDayPeakCount(votes, iso);
+      const anyOnDayCount = votes.filter(
+        (v) => Array.isArray((v.datasHorarios || {})[iso]) && v.datasHorarios[iso].length > 0
+      ).length;
+
+      const slotsCardsHtml = TIME_SLOTS.map((slot) => {
+        const available = [];
+        const unavailable = [];
+
+        votes.forEach((v) => {
+          const daySlots = Array.isArray((v.datasHorarios || {})[iso])
+            ? [...v.datasHorarios[iso]].sort()
+            : [];
+          if (daySlots.includes(slot)) {
+            available.push(v.nome);
+          } else {
+            unavailable.push({ nome: v.nome, otherSlotsSameDay: daySlots });
+          }
+        });
+
+        const pct = total > 0 ? Math.round((available.length / total) * 100) : 0;
+        const isPeakSlot = peak > 0 && available.length === peak;
+
+        const availHtml = available.length
+          ? available
+              .map(
+                (n) =>
+                  `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-[#ecfdf5] text-[#065f46] border border-emerald-200">${escapeHtml(
+                    n
+                  )}</span>`
+              )
+              .join("")
+          : `<span class="text-xs text-gray-400">Ninguém marcou este horário</span>`;
+
+        const unavailHtml = unavailable.length
+          ? unavailable
+              .map((u) => {
+                const detail =
+                  u.otherSlotsSameDay.length > 0
+                    ? `pode às ${u.otherSlotsSameDay.join(", ")}`
+                    : "não marcou esse dia";
+                return `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-[#fef2f2] text-[#991b1b] border border-red-200"><strong class="font-semibold mr-1">${escapeHtml(
+                  u.nome
+                )}</strong><span class="opacity-85">(${escapeHtml(detail)})</span></span>`;
+              })
+              .join("")
+          : `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-[#ecfdf5] text-[#065f46] border border-emerald-200">Todos podem!</span>`;
+
+        return `
+          <div class="p-3.5 rounded-xl border ${
+            isPeakSlot ? "border-[#1d4ed8]/40 bg-blue-50/20" : "border-gray-200 bg-white"
+          }">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+              <div class="flex items-center gap-2">
+                <strong class="text-sm sm:text-base font-bold text-[#111827]">${slot}</strong>
+                ${
+                  isPeakSlot
+                    ? `<span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-[#1d4ed8] text-white">Melhor do dia</span>`
+                    : ""
+                }
+              </div>
+              <span class="text-xs font-semibold text-gray-600 tabular-nums">
+                ${available.length} de ${total} podem (${pct}%)
+              </span>
+            </div>
+            <div class="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden mb-3">
+              <div
+                class="h-full rounded-full ${isPeakSlot ? "bg-[#1d4ed8]" : "bg-[#111827]"}"
+                style="width: ${pct}%;"
+              ></div>
+            </div>
+            <div class="space-y-2">
+              <div>
+                <span class="block text-[11px] font-bold uppercase tracking-wider text-[#065f46] mb-1">
+                  Podem ir (${available.length}):
+                </span>
+                <div class="flex flex-wrap gap-1.5">${availHtml}</div>
+              </div>
+              <div>
+                <span class="block text-[11px] font-bold uppercase tracking-wider text-[#991b1b] mb-1">
+                  Não podem (${unavailable.length}):
+                </span>
+                <div class="flex flex-wrap gap-1.5">${unavailHtml}</div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      container.innerHTML = `
+        <div class="p-4 sm:p-5 rounded-2xl border-2 border-[#111827] bg-gray-50/70">
+          <div class="mb-4">
+            <span class="block text-[11px] font-bold uppercase tracking-wider text-gray-500">
+              Detalhamento do dia selecionado
+            </span>
+            <h3 class="text-base sm:text-lg font-bold text-[#111827] capitalize mt-0.5">
+              ${escapeHtml(formatDateLongPtBR(iso))}
+            </h3>
+            <p class="text-xs sm:text-sm text-gray-600 mt-0.5">
+              ${
+                anyOnDayCount > 0
+                  ? `${anyOnDayCount} de ${total} ${
+                      anyOnDayCount === 1 ? "pessoa marcou" : "pessoas marcaram"
+                    } disponibilidade neste dia.`
+                  : "Ninguém marcou disponibilidade neste dia ainda."
+              }
+            </p>
+          </div>
+          <div class="space-y-3">${slotsCardsHtml}</div>
+        </div>
+      `;
+    }
+
+    /* ==========================================================================
+       INICIALIZAÇÃO E EVENT LISTENERS
+       ========================================================================== */
+    function init() {
+      const savedName = safeStorageGet(STORAGE_KEYS.USER_NAME);
+      const savedPhone = safeStorageGet(STORAGE_KEYS.USER_PHONE);
+      if (savedName) document.getElementById("inputNome").value = savedName;
+      if (savedPhone) document.getElementById("inputWhatsapp").value = savedPhone;
+
+      document.getElementById("inputWhatsapp").addEventListener("input", (e) => {
+        e.target.value = formatPhoneMask(e.target.value);
+      });
+
+      document.getElementById("inputPrizeOther").addEventListener("input", (e) => {
+        state.form.premioOutro = e.target.value;
+        setStepError(3, "");
+      });
+
+      document.getElementById("inputFoodOther").addEventListener("input", (e) => {
+        state.form.comidaOutro = e.target.value;
+        setStepError(4, "");
+      });
+
+      document.getElementById("inputLocationOther").addEventListener("input", (e) => {
+        state.form.localOutro = e.target.value;
+        setStepError(5, "");
+      });
+
+      const budgetSlider = document.getElementById("budgetSlider");
+      budgetSlider.addEventListener("input", (e) => {
+        syncBudgetSliderUI(e.target.value);
+        renderReviewSummary();
+        setStepError(6, "");
+      });
+
+      document.querySelectorAll(".budget-tick-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          syncBudgetSliderUI(btn.dataset.budgetTick);
+          renderReviewSummary();
+          setStepError(6, "");
+        });
+      });
+
+      // Navegação principal
+      document.getElementById("btnStep1Next").addEventListener("click", handleStep1Continue);
+      document.getElementById("btnStep1OpenCalendar").addEventListener("click", () => goToStep(8));
+
+      document.querySelectorAll("[data-prev]").forEach((btn) => {
+        btn.addEventListener("click", () => goToStep(Number(btn.dataset.prev)));
+      });
+
+      document.querySelectorAll("[data-next]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const nextStep = Number(btn.dataset.next);
+          if (validateStep(state.currentStep)) {
+            goToStep(nextStep);
+          }
+        });
+      });
+
+      // Calendário de votação (Tela 2)
+      document.getElementById("btnPrevMonth").addEventListener("click", () => {
+        if (state.calendarMonthIndex > 0) {
+          state.calendarMonthIndex -= 1;
+          renderCalendar();
+        }
+      });
+
+      document.getElementById("btnNextMonth").addEventListener("click", () => {
+        if (state.calendarMonthIndex < ALLOWED_MONTHS.length - 1) {
+          state.calendarMonthIndex += 1;
+          renderCalendar();
+        }
+      });
+
+      document.getElementById("btnAllDay").addEventListener("click", toggleAllDayForActiveDate);
+      document.getElementById("btnSubmitVote").addEventListener("click", handleSubmitVote);
+
+      // Botão superior alternar Resultados / Menu Inicial
+      document.getElementById("btnToggleResults").addEventListener("click", () => {
+        if (isVotingClosed()) {
+          enforceClosedVotingState();
+          return;
+        }
+        if (state.currentStep === 7 || state.currentStep === 8) {
+          goToStep(1);
+        } else {
+          goToStep(7);
+        }
+      });
+
+      // Botões da Tela 7 (Placar ao Vivo)
+      document.getElementById("btnRefreshResults").addEventListener("click", loadAndRenderResults);
+      document.getElementById("btnOpenGroupCalendar").addEventListener("click", () => goToStep(8));
+      document.getElementById("btnOpenGroupCalendarInline").addEventListener("click", () => goToStep(8));
+      document.getElementById("btnResultsBackHome").addEventListener("click", () => goToStep(1));
+
+      // Botões da Tela 8 (Calendário da Galera)
+      document.getElementById("btnGroupCalBackResults").addEventListener("click", () => goToStep(7));
+      document.getElementById("btnGroupCalBackHome").addEventListener("click", () => goToStep(1));
+      document.getElementById("btnGroupPrevMonth").addEventListener("click", () => {
+        if (state.groupCalMonthIndex > 0) {
+          state.groupCalMonthIndex -= 1;
+          renderGroupCalendarGrid(state.lastRenderedVotes);
+        }
+      });
+      document.getElementById("btnGroupNextMonth").addEventListener("click", () => {
+        if (state.groupCalMonthIndex < ALLOWED_MONTHS.length - 1) {
+          state.groupCalMonthIndex += 1;
+          renderGroupCalendarGrid(state.lastRenderedVotes);
+        }
+      });
+
+      // Copiar lista de chinelos
+      document.getElementById("btnCopyShoes").addEventListener("click", async () => {
+        const text = getCopyableShoeListText(state.lastRenderedVotes);
+        if (!text) return;
+        const btn = document.getElementById("btnCopyShoes");
+        const ok = await copyTextToClipboard(text);
+        if (ok) {
+          const original = btn.textContent;
+          btn.textContent = "Copiado!";
+          btn.classList.remove("bg-[#111827]", "hover:bg-gray-800");
+          btn.classList.add("bg-emerald-700");
+          setTimeout(() => {
+            btn.textContent = original;
+            btn.classList.remove("bg-emerald-700");
+            btn.classList.add("bg-[#111827]", "hover:bg-gray-800");
+          }, 2000);
+        }
+      });
+
+      // Editar meu voto a partir do placar
+      document.getElementById("btnEditMyVote").addEventListener("click", async () => {
+        if (isVotingClosed()) {
+          enforceClosedVotingState();
+          return;
+        }
+        const savedId = state.form.idUsuario || safeStorageGet(STORAGE_KEYS.USER_ID);
+        if (savedId && !state.isEditingExisting) {
+          try {
+            const lookup = await apiLookupUser(savedId);
+            if (lookup && lookup.found && lookup.vote) {
+              state.form.idUsuario = savedId;
+              state.form.whatsapp =
+                safeStorageGet(STORAGE_KEYS.USER_PHONE) || formatPhoneMask(savedId);
+              prefillVoteData(lookup.vote);
+              goToStep(2);
+              return;
+            }
+          } catch (err) {
+            console.error(err);
+          }
+        }
+        goToStep(state.form.idUsuario ? 2 : 1);
+      });
+
+      // Renderização inicial
+      renderCalendar();
+      renderTimeSlotPanel();
+      renderSelectedDatesSummary();
+      renderAllOptionGrids();
+      renderShoeSizeGrid();
+      syncBudgetSliderUI(BUDGET_DEFAULT);
+
+      if (isVotingClosed()) {
+        updateDeadlineUI();
+      } else {
+        if (isUsingMock()) {
+          showBanner(
+            "Modo demonstração ativo — já existem 5 votos de exemplo para você testar o placar.",
+            "warning"
+          );
+        }
+        updateDeadlineUI();
+        setInterval(updateDeadlineUI, 30000);
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", init);
+  </script>
+</body>
+</html>
